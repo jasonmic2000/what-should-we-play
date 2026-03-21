@@ -50,7 +50,12 @@ export async function fetchBatch(
   steamIds: string[],
 ): Promise<Map<string, GameLibrary>> {
   const libraries = await Promise.all(
-    steamIds.map(async (steamId64) => [steamId64, await fetchGames(steamId64)]),
+    steamIds.map(
+      async (steamId64): Promise<[string, GameLibrary]> => [
+        steamId64,
+        await fetchGames(steamId64),
+      ],
+    ),
   );
 
   return new Map(libraries);
