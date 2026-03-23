@@ -2,225 +2,119 @@
 
 ## Overview
 
-This plan implements a Next.js web application that helps groups of friends discover shared Steam games. The implementation follows a server-side processing approach with a single API endpoint handling profile resolution, game fetching, and overlap calculation. The client focuses on input collection and results display with a random game picker feature.
+This plan updates the project from a pure request-time Steam integration model to a dual-source architecture:
+
+- live ownership data from Steam
+- local game catalog data from the application database
+
+The MVP remains simple for users, but implementation work should prioritize backend shapes that will not need to be replaced when free-to-play entitlements, multiplayer filtering, pricing, and recommendation features are added later.
 
 ## Tasks
 
-- [x] 1. Set up project structure and core types
-  - Initialize Next.js 14+ project with TypeScript and App Router
-  - Install dependencies: Tailwind CSS, Radix UI/shadcn/ui, Lucide React
-  - Create folder structure: app/, components/, lib/, hooks/, __tests__/
-  - Define TypeScript types in lib/types.ts (SteamProfile, SteamGame, GameLibrary, OverlapAnalysis, APIResponse, APIError)
-  - Create lib/constants.ts with Steam API endpoints and configuration
-  - Set up .env.example with STEAM_API_KEY placeholder
-  - _Requirements: Project foundation for all subsequent tasks_
+- [ ] 1. Expand domain and integration types
+  - Extend `lib/types.ts` to model fuller Steam API responses
+  - Add types for recently played responses
+  - Add local catalog types such as `CatalogGame`, sync timestamps, and multiplayer flags
+  - Add enriched shared-game response types that can stay stable as the catalog grows
+  - _Requirements: 6, 8, 9, 12_
 
-- [ ] 2. Implement Steam profile input parsing
-  - [ ] 2.1 Create input parser utility
-    - Implement parseSteamProfileInput() in lib/steam/input-parser.ts
-    - Support vanity URLs (steamcommunity.com/id/username)
-    - Support numeric profile URLs (steamcommunity.com/profiles/[ID])
-    - Do NOT support raw SteamID64 input (Steam API limitation)
-    - Return ParsedProfile with type ('steamid64' or 'vanity') and identifier
-    - _Requirements: Design - Profile Input Parsing section, Requirement 1_
-  
-  - [ ]* 2.2 Write unit tests for input parser
-    - Test vanity URL extraction
-    - Test numeric profile URL extraction
-    - Test invalid input handling (including raw SteamID64 rejection)
-    - Test whitespace trimming
-    - _Requirements: Design - Testing Strategy_
+- [ ] 2. Extend Steam API constants and client wrappers
+  - Add `GetRecentlyPlayedGames` endpoint constants
+  - Add typed API wrappers for owned games, player summaries, vanity resolution, and recently played data
+  - Keep `https`, `include_appinfo=1`, and `include_played_free_games=1` in the owned-games call path
+  - Keep Steam-specific request construction isolated from business logic
+  - _Requirements: 3, 8, 14_
 
-- [ ] 3. Implement profile resolution logic
-  - [ ] 3.1 Create ProfileResolver service
-    - Implement resolveProfile() in lib/steam/profile-resolver.ts
-    - Call Steam API ISteamUser/ResolveVanityURL/v0001/ for vanity names
-    - Handle success codes: 1 (success), 42 (not found)
-    - Extract SteamID64 directly from numeric profile URLs
-    - Return ResolvedProfile with steamId64, vanityName, profileUrl
-    - Handle errors: INVALID_URL, VANITY_NOT_FOUND, PROFILE_NOT_FOUND, API_ERROR
-    - _Requirements: Design - Component 2: ProfileResolver, Requirement 3_
-  
-  - [ ] 3.2 Implement batch resolution with strict failure handling
-    - Implement resolveBatch() using Promise.all() for parallel processing
-    - If any profile fails to resolve, fail the entire request (strict mode for MVP)
-    - Return error response with PROFILE_RESOLUTION_FAILED code and failedProfile details
-    - _Requirements: Design - Performance Considerations (parallel fetching), strict failure mode_
-  
-  - [ ]* 3.3 Write unit tests for profile resolver
-    - Test vanity URL resolution with mocked Steam API (success code 1)
-    - Test vanity URL not found (success code 42)
-    - Test numeric profile URL extraction
-    - Test error handling for each error type
-    - Test batch resolution with mixed inputs
-    - _Requirements: Design - Testing Strategy_
+- [ ] 3. Refine profile parsing and resolution flow
+  - Preserve current support for vanity and numeric profile URLs
+  - Keep duplicate detection at both input and resolved-SteamID levels
+  - Ensure error responses remain consistent after the type refactor
+  - Update unit tests if response or error shapes change
+  - _Requirements: 1, 2, 12_
 
-- [ ] 4. Checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.
+- [ ] 4. Stabilize the live ownership pipeline
+  - Keep owned-library fetching in a dedicated service
+  - Ensure private-library detection follows the documented heuristics
+  - Keep player summary fetching separate from overlap calculation
+  - Confirm tests cover live ownership fetch behavior with mocked Steam responses
+  - _Requirements: 3, 4, 14_
 
-- [ ] 5. Implement game library fetching
-  - [ ] 5.1 Create GameLibraryFetcher service
-    - Implement fetchGames() in lib/steam/game-fetcher.ts
-    - Call Steam API IPlayerService/GetOwnedGames/v0001/ with include_appinfo=1, include_played_free_games=1, format=json
-    - Parse game data from SteamOwnedGamesResponse (handle optional name, img_icon_url, img_logo_url fields)
-    - Construct header image URLs: https://cdn.cloudflare.steamstatic.com/steam/apps/{appId}/header.jpg
-    - Detect likely private/inaccessible libraries (missing games array or game_count=0 with no games)
-    - Return GameLibrary with games array, gameCount, isPrivate flag
-    - Handle errors: PRIVATE_LIBRARY, PROFILE_NOT_FOUND, API_ERROR
-    - Note: Empty game arrays are treated as likely private libraries (best-effort detection)
-    - _Requirements: Design - Component 3: GameLibraryFetcher, Requirement 4_
-  
-  - [ ] 5.2 Implement batch fetching with strict failure handling
-    - Implement fetchBatch() using Promise.all() for concurrent requests
-    - If any library is detected as private/inaccessible, fail the entire request (strict mode for MVP)
-    - Return Map<string, GameLibrary> keyed by steamId64 only on complete success
-    - _Requirements: Design - Performance Considerations (parallel fetching), strict failure mode_
-  
-  - [ ] 5.3 Implement player summary fetching
-    - Create fetchPlayerSummaries() function
-    - Call Steam API ISteamUser/GetPlayerSummaries/v0002/ with comma-separated steamids
-    - Parse SteamPlayerSummariesResponse to extract personaname, avatar, profileurl
-    - Return map of steamId64 to player summary data
-    - _Requirements: Requirement 4.7_
-  
-  - [ ]* 5.4 Write unit tests for game fetcher
-    - Test successful game fetching with mocked Steam API (with include_appinfo data)
-    - Test game fetching without include_appinfo data (fallback to "Unknown Game")
-    - Test private library detection (missing games array)
-    - Test private library detection (game_count=0 with no games)
-    - Test free-to-play game inclusion
-    - Test header image URL construction
-    - Test batch fetching with multiple profiles
-    - Test player summaries fetching
-    - _Requirements: Design - Testing Strategy_
+- [ ] 5. Add backend-only recently played support
+  - Implement a service boundary for `GetRecentlyPlayedGames`
+  - Add types and tests for recently played responses
+  - Do not expose recently played data in `/api/find-overlap` yet
+  - Keep this support internal and future-facing
+  - _Requirements: 8_
 
-- [ ] 6. Implement overlap calculation logic
-  - [ ] 6.1 Create OverlapCalculator service
-    - Implement calculateGameOverlap() in lib/steam/overlap-calculator.ts
-    - Build map of appId to ownership (Set of steamId64s)
-    - Filter games owned by ALL users
-    - Return sorted array of shared games (alphabetical by name)
-    - Throw error if any library is private or has errors (strict mode for MVP)
-    - _Requirements: Design - Component 4: OverlapCalculator, Core Logic - Overlap Calculation_
-  
-  - [ ]* 6.2 Write unit tests for overlap calculator
-    - Test overlap with 2 users, 3 users, 6 users
-    - Test zero overlap scenario
-    - Test complete overlap scenario
-    - Test single game overlap
-    - Test error handling for private libraries
-    - Test sorting by game name
-    - _Requirements: Design - Testing Strategy_
+- [ ] 6. Design and implement catalog persistence
+  - Choose and set up the initial database approach
+  - Create schema/tables for game catalog records and sync status
+  - Support at minimum: `appId`, `name`, `isFree`, metadata timestamps
+  - Leave room for price and multiplayer-related metadata fields
+  - _Requirements: 6, 7, 9_
 
-- [ ] 7. Checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.
+- [ ] 7. Implement catalog repository and enrichment layer
+  - Create repository methods for batch lookup by `appId`
+  - Build an enrichment layer that joins shared games with catalog metadata
+  - Ensure missing catalog metadata does not break MVP overlap responses
+  - Filter F2P titles on the backend by default for MVP/free-tier behavior
+  - _Requirements: 6, 10, 12_
 
-- [ ] 8. Implement API endpoint
-  - [ ] 8.1 Create /api/find-overlap route handler
-    - Create app/api/find-overlap/route.ts with POST handler
-    - Validate request body (2-6 profiles array)
-    - Parse all profile inputs using input-parser (trim whitespace, validate formats)
-    - Resolve all profiles using ProfileResolver.resolveBatch() - fail entire request if any profile fails
-    - Fetch all game libraries using GameLibraryFetcher.fetchBatch() - fail entire request if any library is private/inaccessible
-    - Calculate overlap using OverlapCalculator.calculateGameOverlap()
-    - Return APIResponse with profiles and sharedGames on success
-    - Implement strict failure mode: any profile or library failure fails the entire request
-    - _Requirements: Design - API Design, Single Endpoint: Find Overlap_
-  
-  - [ ] 8.2 Implement error handling
-    - Handle INVALID_INPUT (invalid profile format, wrong count, unsupported format)
-    - Handle PROFILE_RESOLUTION_FAILED (vanity URL not found, profile not found)
-    - Handle PRIVATE_LIBRARY (empty/missing game list detected - strict failure mode)
-    - Handle API_ERROR (Steam API unavailable, 5xx errors)
-    - Include failedProfile in error response for debugging
-    - Do not implement RATE_LIMIT handling in MVP (future enhancement)
-    - _Requirements: Design - Error Handling (all scenarios), Requirement 7.6_
-  
-  - [ ]* 8.3 Write integration tests for API endpoint
-    - Test successful flow with mocked Steam API
-    - Test invalid input validation
-    - Test profile resolution failure
-    - Test private library handling
-    - Test Steam API error handling
-    - _Requirements: Design - Integration Testing Approach_
+- [ ] 8. Build catalog sync jobs
+  - Implement initial backfill from Steam app-list data
+  - Implement incremental or timestamp-based refresh flow where provider support exists
+  - Track sync status, failures, and last-refresh timestamps
+  - Keep sync jobs fully outside the request-time overlap path
+  - _Requirements: 7, 14_
 
-- [ ] 9. Implement frontend components
-  - [ ] 9.1 Create ProfileInputForm component
-    - Create components/ProfileInputForm.tsx
-    - Render dynamic input fields (2-6 profiles, add/remove buttons)
-    - Implement client-side validation (trim whitespace, validate URL formats - vanity and numeric only)
-    - Reject raw SteamID64 input (17-digit numbers without URL context)
-    - Prevent duplicate inputs (normalize and compare)
-    - Display placeholder: "Paste Steam profile URLs"
-    - Emit onSubmit with profiles array
-    - _Requirements: Design - Component 1: ProfileInputForm, Requirement 14, Requirement 1_
-  
-  - [ ] 9.2 Create ResultsDisplay component
-    - Create components/ResultsDisplay.tsx
-    - Display list of shared games with header images
-    - Show game name, appId, and playtime metadata
-    - Implement client-side sorting (by name, by playtime)
-    - Implement client-side filtering (text search)
-    - Display user profile summaries
-    - Handle empty state (zero shared games)
-    - _Requirements: Design - Component 5: ResultsDisplay_
-  
-  - [ ] 9.3 Create RandomPicker component
-    - Create components/RandomPicker.tsx
-    - Implement pickRandomGame() function
-    - Add animation using pickRandomGameWithAnimation() (20 iterations, 100ms interval)
-    - Highlight picked game in results list
-    - Provide "Pick a game for us" button
-    - _Requirements: Design - Core Logic - Random Game Picker_
-  
-  - [ ] 9.4 Create error and loading components
-    - Create components/ErrorBanner.tsx for error display
-    - Create components/LoadingState.tsx for loading indicators
-    - Display appropriate messages for each error type
-    - _Requirements: Design - Error Handling_
+- [ ] 9. Refactor overlap calculation for roadmap compatibility
+  - Keep strict “owned by all users” behavior for MVP output
+  - Structure the calculator so ownership-count logic can support threshold recommendations later
+  - Keep shared-game output stable while preserving future extensibility
+  - Update overlap tests to reflect any enriched response changes
+  - _Requirements: 5, 11_
 
-- [ ] 10. Implement custom hooks
-  - [ ] 10.1 Create useProfileInputs hook
-    - Create hooks/useProfileInputs.ts
-    - Manage profile input state (add, remove, validate)
-    - Track validation errors per input
-    - Prevent duplicates
-    - _Requirements: Design - Component 1: ProfileInputForm_
-  
-  - [ ] 10.2 Create useFindOverlap hook
-    - Create hooks/useFindOverlap.ts
-    - Call POST /api/find-overlap endpoint
-    - Manage loading, success, and error states
-    - Parse and return API response
-    - _Requirements: Design - API Design_
+- [ ] 10. Update `/api/find-overlap` to use catalog enrichment
+  - Keep the public response shape to `{ profiles, sharedGames }`
+  - Use live Steam ownership for the overlap set
+  - Join shared appIds against the local catalog
+  - Apply backend filtering policy before returning results
+  - Do not include recently played data yet
+  - _Requirements: 6, 10, 12_
 
-- [ ] 11. Build main page
-  - [ ] 11.1 Create landing page
-    - Create app/page.tsx with ProfileInputForm
-    - Integrate useFindOverlap hook
-    - Display ResultsDisplay when data available
-    - Display ErrorBanner on errors
-    - Display LoadingState during API calls
-    - Wire up RandomPicker component
-    - _Requirements: Design - Main User Flow_
-  
-  - [ ] 11.2 Add styling and layout
-    - Configure Tailwind CSS in app/globals.css
-    - Create responsive layout in app/layout.tsx
-    - Style all components for clean, modern UI
-    - Add game card styling with header images
-    - _Requirements: Design - Dependencies (Tailwind CSS)_
+- [ ] 11. Prepare policy hooks for plan-based features
+  - Define internal policy boundaries for free-tier vs future paid-tier behavior
+  - Default current behavior to exclude F2P titles
+  - Keep room for future paid-tier inclusion of F2P suggestions
+  - Keep room for future ownership-threshold and pricing-aware recommendation outputs
+  - _Requirements: 10, 11_
 
-- [ ] 12. Final checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.
+- [ ] 12. Rework tests around the new architecture
+  - Update service tests for expanded Steam response types
+  - Add tests for recently played service boundaries
+  - Add tests for catalog enrichment behavior
+  - Add tests verifying that F2P titles are filtered server-side by default
+  - Keep route tests focused on orchestration and response contract stability
+  - _Requirements: 8, 10, 12_
+
+- [ ] 13. Update frontend integration for the stable MVP contract
+  - Keep the current user-facing flow focused on shared games owned by all users
+  - Ensure the frontend continues to consume `{ profiles, sharedGames }`
+  - Do not add UI for recently played data yet
+  - Leave room for future F2P toggles only after backend authorization exists
+  - _Requirements: 10, 12_
+
+- [ ] 14. Add operational documentation
+  - Document required environment variables
+  - Document catalog sync strategy and expected refresh behavior
+  - Document how live ownership differs from local metadata
+  - Document roadmap assumptions around pricing, multiplayer flags, and threshold recommendations
+  - _Requirements: 7, 13, 14_
 
 ## Notes
 
-- Tasks marked with `*` are optional and can be skipped for faster MVP
-- All Steam API calls use parallel fetching with Promise.all() for performance
-- **Strict failure mode for MVP**: Any profile resolution failure or private/inaccessible library fails the entire request
-- Partial success handling is a future enhancement
-- TypeScript is used throughout for type safety
-- Steam API key must be configured in .env.local before running
-- Header images provide better visual display than icon images from API
-- Rate limit handling (RATE_LIMIT error code) is not implemented in MVP - future enhancement
+- Current code already covers parts of profile parsing, profile resolution, owned-library fetching, overlap calculation, and route-level orchestration. The next implementation steps should adapt those pieces to the new catalog-first enrichment model instead of replacing them blindly.
+- The MVP must stay simple at the API boundary even as the backend architecture expands.
+- Avoid introducing per-game live Steam calls into `/api/find-overlap`.
+- Treat recently played support as backend capability only until ranking becomes a shipped feature.
+- Keep entitlement-sensitive filtering on the backend, not in the frontend.
