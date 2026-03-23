@@ -1,0 +1,223 @@
+openapi: 3.0.0
+info:
+  title: Steam Api
+  version: 1.0.0
+  description: Documenting Steam API endpoints for the "What should we play?" app
+servers:
+  - url: http://api.steampowered.com
+paths:
+  /IPlayerService/GetOwnedGames/v0001/:
+    get:
+      summary: GetOwnedGames (v0001)
+      parameters:
+        - name: key
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAM_API_KEY}}'
+        - name: steamid
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAMID}}'
+        - name: format
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: json
+      responses:
+        '200':
+          description: GetOwnedGames (v0001)
+          headers:
+            Server:
+              schema:
+                type: string
+              example: nginx
+            X-eresult:
+              schema:
+                type: integer
+              example: '1'
+            Vary:
+              schema:
+                type: string
+              example: Accept-Encoding
+            Content-Encoding:
+              schema:
+                type: string
+              example: gzip
+            Content-Length:
+              schema:
+                type: integer
+              example: '4644'
+            Expires:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:42:53 GMT
+            Date:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:42:53 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+  /ISteamUser/GetPlayerSummaries/v0002/:
+    get:
+      summary: GetPlayerSummaries (v0002)
+      parameters:
+        - name: key
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAM_API_KEY}}'
+        - name: steamids
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAMIDS}}'
+      responses:
+        '200':
+          description: GetPlayerSummaries (v0002)
+          headers:
+            Server:
+              schema:
+                type: string
+              example: nginx
+            Vary:
+              schema:
+                type: string
+              example: Accept-Encoding
+            Content-Encoding:
+              schema:
+                type: string
+              example: gzip
+            Expires:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:42:56 GMT
+            Date:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:42:56 GMT
+            Content-Length:
+              schema:
+                type: integer
+              example: '478'
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+  /IPlayerService/GetRecentlyPlayedGames/v0001/:
+    get:
+      summary: GetRecentlyPlayedGames (v0001)
+      parameters:
+        - name: key
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAM_API_KEY}}'
+        - name: steamid
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAMID}}'
+        - name: format
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: json
+      responses:
+        '200':
+          description: GetRecentlyPlayedGames (v0001)
+          headers:
+            Server:
+              schema:
+                type: string
+              example: nginx
+            X-eresult:
+              schema:
+                type: integer
+              example: '1'
+            Vary:
+              schema:
+                type: string
+              example: Accept-Encoding
+            Content-Encoding:
+              schema:
+                type: string
+              example: gzip
+            Content-Length:
+              schema:
+                type: integer
+              example: '325'
+            Expires:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:42:58 GMT
+            Date:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:42:58 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+  /ISteamUser/ResolveVanityURL/v0001/:
+    get:
+      summary: ResolveVanityURL
+      parameters:
+        - name: key
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{STEAM_API_KEY}}'
+        - name: vanityurl
+          in: query
+          required: false
+          deprecated: false
+          schema: {}
+          example: '{{VANITY_URL}}'
+      responses:
+        '200':
+          description: ResolveVanityURL
+          headers:
+            Server:
+              schema:
+                type: string
+              example: nginx
+            Vary:
+              schema:
+                type: string
+              example: Accept-Encoding
+            Content-Encoding:
+              schema:
+                type: string
+              example: gzip
+            Content-Length:
+              schema:
+                type: integer
+              example: '76'
+            Expires:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:43:00 GMT
+            Date:
+              schema:
+                type: string
+              example: Sat, 21 Mar 2026 14:43:00 GMT
+            Connection:
+              schema:
+                type: string
+              example: keep-alive
+      description: >-
+        The vanityurl parameter here accepts the username, not the full profile
+        URL

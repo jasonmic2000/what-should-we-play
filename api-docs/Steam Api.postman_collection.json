@@ -1,0 +1,194 @@
+{
+  "info": {
+    "_postman_id": "32d77a54-35c3-4019-80b1-42cb16f8dce9",
+    "name": "Steam Api",
+    "description": "Documenting Steam API endpoints for the \"What should we play?\" app",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "11871357"
+  },
+  "item": [
+    {
+      "name": "GetOwnedGames (v0001)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={{STEAM_API_KEY}}&steamid={{STEAMID}}&format=json",
+          "protocol": "http",
+          "host": [
+            "api",
+            "steampowered",
+            "com"
+          ],
+          "path": [
+            "IPlayerService",
+            "GetOwnedGames",
+            "v0001",
+            ""
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{STEAM_API_KEY}}"
+            },
+            {
+              "key": "steamid",
+              "value": "{{STEAMID}}"
+            },
+            {
+              "key": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetPlayerSummaries (v0002)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={{STEAM_API_KEY}}&steamids={{STEAMIDS}}",
+          "protocol": "http",
+          "host": [
+            "api",
+            "steampowered",
+            "com"
+          ],
+          "path": [
+            "ISteamUser",
+            "GetPlayerSummaries",
+            "v0002",
+            ""
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{STEAM_API_KEY}}"
+            },
+            {
+              "key": "steamids",
+              "value": "{{STEAMIDS}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GetRecentlyPlayedGames (v0001)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key={{STEAM_API_KEY}}&steamid={{STEAMID}}&format=json",
+          "protocol": "http",
+          "host": [
+            "api",
+            "steampowered",
+            "com"
+          ],
+          "path": [
+            "IPlayerService",
+            "GetRecentlyPlayedGames",
+            "v0001",
+            ""
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{STEAM_API_KEY}}"
+            },
+            {
+              "key": "steamid",
+              "value": "{{STEAMID}}"
+            },
+            {
+              "key": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ResolveVanityURL",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={{STEAM_API_KEY}}&vanityurl={{VANITY_URL}}",
+          "protocol": "http",
+          "host": [
+            "api",
+            "steampowered",
+            "com"
+          ],
+          "path": [
+            "ISteamUser",
+            "ResolveVanityURL",
+            "v0001",
+            ""
+          ],
+          "query": [
+            {
+              "key": "key",
+              "value": "{{STEAM_API_KEY}}"
+            },
+            {
+              "key": "vanityurl",
+              "value": "{{VANITY_URL}}"
+            }
+          ]
+        },
+        "description": "The vanityurl parameter here accepts the username, not the full profile URL"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "STEAM_API_KEY",
+      "value": "8F8485C4E4BFFB5860BA0BC5B80161B3"
+    },
+    {
+      "key": "STEAMID",
+      "value": "76561198217622453"
+    },
+    {
+      "key": "VANITY_URL",
+      "value": "jasonmic2000"
+    },
+    {
+      "key": "STEAMIDS",
+      "value": "76561198217622453, 76561198869927026"
+    }
+  ]
+}
