@@ -8,6 +8,7 @@ const DEFAULT_ERROR_MESSAGES: Record<APIErrorCode, string> = {
   PRIVATE_LIBRARY:
     "One or more game libraries are private. All users must set their game details to public in Steam Privacy Settings",
   API_ERROR: "Steam API is temporarily unavailable. Please try again in a moment",
+  RATE_LIMIT: "Too many requests. Please wait a moment before trying again.",
 };
 
 const ERROR_STATUS_CODES: Record<APIErrorCode, number> = {
@@ -15,6 +16,7 @@ const ERROR_STATUS_CODES: Record<APIErrorCode, number> = {
   PROFILE_RESOLUTION_FAILED: 404,
   PRIVATE_LIBRARY: 400,
   API_ERROR: 502,
+  RATE_LIMIT: 429,
 };
 
 interface SteamOverlapErrorOptions {

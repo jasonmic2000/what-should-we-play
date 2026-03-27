@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { MAX_PROFILE_COUNT, MIN_PROFILE_COUNT } from "@/lib/constants";
+import {
+  canRefresh,
+  invalidateProfile,
+  recordRefresh,
+} from "@/lib/cache";
+import { checkRateLimit } from "@/lib/rate-limiter";
 import { parseSteamProfileInput } from "@/lib/steam/input-parser";
 import { calculateGameOverlap } from "@/lib/steam/overlap-calculator";
 import { fetchBatch, fetchPlayerSummaries } from "@/lib/steam/game-fetcher";
@@ -27,7 +33,10 @@ function validateRequestBody(body: unknown): FindOverlapRequest {
     throw new SteamOverlapError("INVALID_INPUT");
   }
 
-  const { profiles } = body as { profiles?: unknown };
+  const { profiles, forceRefresh } = body as {
+    profiles?: unknown;
+    forceRefresh?: unknown;
+  };
 
   if (!Array.isArray(profiles)) {
     throw new SteamOverlapError("INVALID_INPUT");
@@ -48,6 +57,7 @@ function validateRequestBody(body: unknown): FindOverlapRequest {
 
   return {
     profiles,
+    forceRefresh: forceRefresh === true,
   };
 }
 
@@ -115,6 +125,16 @@ function mergePlayerSummaries(
 
 export async function POST(request: Request) {
   try {
+    // Rate limit check — before any body parsing
+    const forwarded = request.headers.get("x-forwarded-for");
+    const realIp = request.headers.get("x-real-ip");
+    const clientIp = forwarded?.split(",")[0]?.trim() || realIp || "unknown";
+    const rateLimitResult = checkRateLimit(clientIp);
+
+    if (!rateLimitResult.allowed) {
+      throw new SteamOverlapError("RATE_LIMIT");
+    }
+
     let body: unknown;
 
     try {
@@ -126,13 +146,50 @@ export async function POST(request: Request) {
     }
 
     const validatedBody = validateRequestBody(body);
+
+    // Determine effective forceRefresh after rate-limit check
+    let effectiveForceRefresh = false;
+    if (validatedBody.forceRefresh) {
+      const parsedForRateLimit = validatedBody.profiles.map((input) => {
+        const parsed = parseSteamProfileInput(input);
+        return parsed?.identifier.toLowerCase() ?? input.toLowerCase();
+      });
+
+      const allAllowed = parsedForRateLimit.every((key) => canRefresh(key));
+      if (!allAllowed) {
+        throw new SteamOverlapError("INVALID_INPUT", {
+          message:
+            "Refresh is rate-limited to once per profile every 5 minutes. Please wait before refreshing again.",
+        });
+      }
+
+      effectiveForceRefresh = true;
+
+      // Invalidate caches and record refresh timestamps
+      for (const key of parsedForRateLimit) {
+        invalidateProfile(key);
+        recordRefresh(key);
+      }
+    }
+
     const parsedProfiles = parseAndValidateProfiles(validatedBody.profiles);
-    const resolvedProfiles = await resolveBatch(parsedProfiles);
+    const resolvedProfiles = await resolveBatch(parsedProfiles, {
+      forceRefresh: effectiveForceRefresh,
+    });
     validateResolvedProfiles(resolvedProfiles);
     const steamIds = resolvedProfiles.map((profile) => profile.steamId64);
+
+    // Also invalidate game library cache by steamId64 on refresh
+    if (effectiveForceRefresh) {
+      for (const steamId of steamIds) {
+        invalidateProfile(steamId);
+        recordRefresh(steamId);
+      }
+    }
+
     const [playerSummaries, librariesBySteamId] = await Promise.all([
       fetchPlayerSummaries(steamIds),
-      fetchBatch(steamIds),
+      fetchBatch(steamIds, { forceRefresh: effectiveForceRefresh }),
     ]);
     const profilesWithSummaries = mergePlayerSummaries(
       resolvedProfiles,

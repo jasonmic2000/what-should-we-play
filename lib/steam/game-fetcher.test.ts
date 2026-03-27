@@ -5,6 +5,7 @@ import {
   fetchPlayerSummaries,
 } from "./game-fetcher";
 import { SteamOverlapError } from "./errors";
+import { gameLibraryCache } from "../cache";
 
 const { getOwnedGamesMock, getPlayerSummariesMock } = vi.hoisted(() => ({
   getOwnedGamesMock: vi.fn(),
@@ -20,6 +21,7 @@ describe("fetchGames", () => {
   beforeEach(() => {
     getOwnedGamesMock.mockReset();
     getPlayerSummariesMock.mockReset();
+    gameLibraryCache.clear();
   });
 
   it("normalizes owned game data from steam", async () => {
@@ -101,6 +103,7 @@ describe("fetchGames", () => {
 describe("fetchBatch", () => {
   beforeEach(() => {
     getOwnedGamesMock.mockReset();
+    gameLibraryCache.clear();
   });
 
   it("returns a map keyed by steam id", async () => {
@@ -158,5 +161,85 @@ describe("fetchPlayerSummaries", () => {
 
     expect(result.size).toBe(0);
     expect(getPlayerSummariesMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("fetchGames caching", () => {
+  beforeEach(() => {
+    getOwnedGamesMock.mockReset();
+    gameLibraryCache.clear();
+  });
+
+  it("returns cached library without calling Steam API", async () => {
+    const cachedLib = {
+      steamId64: "76561198000000000",
+      gameCount: 1,
+      games: [
+        {
+          appId: 570,
+          name: "Dota 2",
+          playtimeForever: 100,
+          imgIconUrl: "",
+          imgLogoUrl: "",
+          headerImageUrl: "",
+        },
+      ],
+      isPrivate: false,
+    };
+    gameLibraryCache.set("76561198000000000", cachedLib);
+
+    const result = await fetchGames("76561198000000000");
+
+    expect(result).toEqual(cachedLib);
+    expect(getOwnedGamesMock).not.toHaveBeenCalled();
+  });
+
+  it("populates cache after a successful API fetch", async () => {
+    getOwnedGamesMock.mockResolvedValue({
+      response: {
+        game_count: 1,
+        games: [
+          {
+            appid: 730,
+            playtime_forever: 50,
+            name: "CS2",
+          },
+        ],
+      },
+    });
+
+    await fetchGames("76561198000000005");
+
+    expect(gameLibraryCache.has("76561198000000005")).toBe(true);
+  });
+
+  it("bypasses cache when forceRefresh is true", async () => {
+    const cachedLib = {
+      steamId64: "76561198000000000",
+      gameCount: 0,
+      games: [],
+      isPrivate: false,
+    };
+    gameLibraryCache.set("76561198000000000", cachedLib);
+
+    getOwnedGamesMock.mockResolvedValue({
+      response: {
+        game_count: 1,
+        games: [
+          {
+            appid: 570,
+            playtime_forever: 200,
+            name: "Dota 2",
+          },
+        ],
+      },
+    });
+
+    const result = await fetchGames("76561198000000000", {
+      forceRefresh: true,
+    });
+
+    expect(result.gameCount).toBe(1);
+    expect(getOwnedGamesMock).toHaveBeenCalledOnce();
   });
 });

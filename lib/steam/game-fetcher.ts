@@ -3,6 +3,7 @@ import {
   getGameIconUrl,
   getGameLogoUrl,
 } from "../constants";
+import { gameLibraryCache } from "../cache";
 import {
   GameLibrary,
   SteamGame,
@@ -11,6 +12,10 @@ import {
 } from "../types";
 import { getOwnedGames, getPlayerSummaries } from "./api";
 import { SteamOverlapError } from "./errors";
+
+export interface FetchOptions {
+  forceRefresh?: boolean;
+}
 
 function normalizeOwnedGame(game: SteamOwnedGame): SteamGame {
   return {
@@ -28,7 +33,18 @@ function normalizeOwnedGame(game: SteamOwnedGame): SteamGame {
   };
 }
 
-export async function fetchGames(steamId64: string): Promise<GameLibrary> {
+export async function fetchGames(
+  steamId64: string,
+  options: FetchOptions = {},
+): Promise<GameLibrary> {
+  // Check cache unless caller requested a forced refresh
+  if (!options.forceRefresh) {
+    const cached = gameLibraryCache.get(steamId64);
+    if (cached) {
+      return cached;
+    }
+  }
+
   const response = await getOwnedGames(steamId64);
   const library = response.response;
 
@@ -38,22 +54,28 @@ export async function fetchGames(steamId64: string): Promise<GameLibrary> {
     });
   }
 
-  return {
+  const result: GameLibrary = {
     steamId64,
     gameCount: library.game_count,
     games: library.games.map(normalizeOwnedGame),
     isPrivate: false,
   };
+
+  // Store in cache
+  gameLibraryCache.set(steamId64, result);
+
+  return result;
 }
 
 export async function fetchBatch(
   steamIds: string[],
+  options: FetchOptions = {},
 ): Promise<Map<string, GameLibrary>> {
   const libraries = await Promise.all(
     steamIds.map(
       async (steamId64): Promise<[string, GameLibrary]> => [
         steamId64,
-        await fetchGames(steamId64),
+        await fetchGames(steamId64, options),
       ],
     ),
   );

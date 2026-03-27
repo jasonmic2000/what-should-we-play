@@ -1,10 +1,16 @@
 import { VANITY_URL_RESOLUTION } from "../constants";
+import { vanityCache } from "../cache";
 import { ParsedProfile, ResolvedProfile } from "../types";
 import { resolveVanityUrl } from "./api";
 import { SteamOverlapError } from "./errors";
 
+export interface ResolveOptions {
+  forceRefresh?: boolean;
+}
+
 export async function resolveProfile(
   parsedProfile: ParsedProfile,
+  options: ResolveOptions = {},
 ): Promise<ResolvedProfile> {
   if (parsedProfile.type === "steamid64") {
     return {
@@ -12,6 +18,21 @@ export async function resolveProfile(
       steamId64: parsedProfile.identifier,
       profileUrl: parsedProfile.normalizedInput,
     };
+  }
+
+  const vanityKey = parsedProfile.identifier.toLowerCase();
+
+  // Check cache unless caller requested a forced refresh
+  if (!options.forceRefresh) {
+    const cached = vanityCache.get(vanityKey);
+    if (cached) {
+      return {
+        originalUrl: parsedProfile.originalInput,
+        steamId64: cached,
+        vanityName: parsedProfile.identifier,
+        profileUrl: parsedProfile.normalizedInput,
+      };
+    }
   }
 
   const response = await resolveVanityUrl(parsedProfile.identifier);
@@ -30,6 +51,9 @@ export async function resolveProfile(
     });
   }
 
+  // Store in cache
+  vanityCache.set(vanityKey, steamid);
+
   return {
     originalUrl: parsedProfile.originalInput,
     steamId64: steamid,
@@ -40,6 +64,7 @@ export async function resolveProfile(
 
 export async function resolveBatch(
   parsedProfiles: ParsedProfile[],
+  options: ResolveOptions = {},
 ): Promise<ResolvedProfile[]> {
-  return Promise.all(parsedProfiles.map(resolveProfile));
+  return Promise.all(parsedProfiles.map((p) => resolveProfile(p, options)));
 }

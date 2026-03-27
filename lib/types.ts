@@ -91,7 +91,8 @@ export type APIErrorCode =
   | "INVALID_INPUT"
   | "PROFILE_RESOLUTION_FAILED"
   | "PRIVATE_LIBRARY"
-  | "API_ERROR";
+  | "API_ERROR"
+  | "RATE_LIMIT";
 
 export interface APIError {
   code: APIErrorCode;
@@ -108,6 +109,7 @@ export interface APIResponse<T> {
 
 export interface FindOverlapRequest {
   profiles: string[];
+  forceRefresh?: boolean;
 }
 
 export interface FindOverlapData {
