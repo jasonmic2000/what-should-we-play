@@ -7,6 +7,7 @@ const {
   fetchBatchMock,
   fetchPlayerSummariesMock,
   calculateGameOverlapMock,
+  enrichSharedGamesMock,
   canRefreshMock,
   invalidateProfileMock,
   recordRefreshMock,
@@ -17,6 +18,7 @@ const {
   fetchBatchMock: vi.fn(),
   fetchPlayerSummariesMock: vi.fn(),
   calculateGameOverlapMock: vi.fn(),
+  enrichSharedGamesMock: vi.fn().mockImplementation((games: unknown[]) => Promise.resolve(games)),
   canRefreshMock: vi.fn().mockReturnValue(true),
   invalidateProfileMock: vi.fn(),
   recordRefreshMock: vi.fn(),
@@ -40,6 +42,10 @@ vi.mock("@/lib/steam/overlap-calculator", () => ({
   calculateGameOverlap: calculateGameOverlapMock,
 }));
 
+vi.mock("@/lib/steam/result-enricher", () => ({
+  enrichSharedGames: enrichSharedGamesMock,
+}));
+
 vi.mock("@/lib/cache", () => ({
   canRefresh: canRefreshMock,
   invalidateProfile: invalidateProfileMock,
@@ -57,6 +63,7 @@ describe("POST /api/find-overlap", () => {
     fetchBatchMock.mockReset();
     fetchPlayerSummariesMock.mockReset();
     calculateGameOverlapMock.mockReset();
+    enrichSharedGamesMock.mockReset().mockImplementation((games: unknown[]) => Promise.resolve(games));
     canRefreshMock.mockReset().mockReturnValue(true);
     invalidateProfileMock.mockReset();
     recordRefreshMock.mockReset();
@@ -261,6 +268,66 @@ describe("POST /api/find-overlap", () => {
         ],
       },
     });
+  });
+
+  it("calls enrichSharedGames with overlap result and uses enriched data", async () => {
+    parseSteamProfileInputMock.mockImplementation((input: string) => {
+      if (input.includes("76561198000000000")) {
+        return {
+          type: "steamid64",
+          identifier: "76561198000000000",
+          originalInput: "https://steamcommunity.com/profiles/76561198000000000",
+          normalizedInput: "https://steamcommunity.com/profiles/76561198000000000",
+        };
+      }
+      return {
+        type: "steamid64",
+        identifier: "76561198000000001",
+        originalInput: "https://steamcommunity.com/profiles/76561198000000001",
+        normalizedInput: "https://steamcommunity.com/profiles/76561198000000001",
+      };
+    });
+
+    resolveBatchMock.mockResolvedValue([
+      { originalUrl: "https://steamcommunity.com/profiles/76561198000000000", steamId64: "76561198000000000", profileUrl: "https://steamcommunity.com/profiles/76561198000000000" },
+      { originalUrl: "https://steamcommunity.com/profiles/76561198000000001", steamId64: "76561198000000001", profileUrl: "https://steamcommunity.com/profiles/76561198000000001" },
+    ]);
+
+    fetchPlayerSummariesMock.mockResolvedValue(new Map());
+    fetchBatchMock.mockResolvedValue(
+      new Map([
+        ["76561198000000000", { steamId64: "76561198000000000", gameCount: 1, isPrivate: false, games: [] }],
+        ["76561198000000001", { steamId64: "76561198000000001", gameCount: 1, isPrivate: false, games: [] }],
+      ]),
+    );
+
+    const overlapGames = [
+      { appId: 730, name: "Counter-Strike 2", playtimeForever: 500, imgIconUrl: "", imgLogoUrl: "", headerImageUrl: "" },
+    ];
+    calculateGameOverlapMock.mockReturnValue(overlapGames);
+
+    const enrichedGames = [
+      { appId: 730, name: "Counter-Strike 2", playtimeForever: 500, imgIconUrl: "", imgLogoUrl: "", headerImageUrl: "", isFree: false, isGroupPlayable: true },
+    ];
+    enrichSharedGamesMock.mockResolvedValue(enrichedGames);
+
+    const request = new Request("http://localhost/api/find-overlap", {
+      method: "POST",
+      body: JSON.stringify({
+        profiles: [
+          "https://steamcommunity.com/profiles/76561198000000000",
+          "https://steamcommunity.com/profiles/76561198000000001",
+        ],
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const response = await POST(request);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(enrichSharedGamesMock).toHaveBeenCalledWith(overlapGames);
+    expect(body.data.sharedGames).toEqual(enrichedGames);
   });
 
   it("returns 429 when rate limit is exceeded", async () => {

@@ -112,9 +112,14 @@ export interface FindOverlapRequest {
   forceRefresh?: boolean;
 }
 
+export interface EnrichedSharedGame extends SteamGame {
+  isFree?: boolean | null;
+  isGroupPlayable?: boolean | null;
+}
+
 export interface FindOverlapData {
   profiles: ResolvedProfile[];
-  sharedGames: SteamGame[];
+  sharedGames: EnrichedSharedGame[];
 }
 
 export type FindOverlapResponse = APIResponse<FindOverlapData>;

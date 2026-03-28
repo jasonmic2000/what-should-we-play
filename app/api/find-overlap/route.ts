@@ -11,6 +11,7 @@ import { calculateGameOverlap } from "@/lib/steam/overlap-calculator";
 import { fetchBatch, fetchPlayerSummaries } from "@/lib/steam/game-fetcher";
 import { resolveBatch } from "@/lib/steam/profile-resolver";
 import { SteamOverlapError, toSteamOverlapError } from "@/lib/steam/errors";
+import { enrichSharedGames } from "@/lib/steam/result-enricher";
 import {
   FindOverlapRequest,
   FindOverlapResponse,
@@ -208,11 +209,19 @@ export async function POST(request: Request) {
     });
     const sharedGames = calculateGameOverlap(libraries);
 
+    // Best-effort catalog enrichment — if it fails, fall back to unenriched games
+    let enrichedGames;
+    try {
+      enrichedGames = await enrichSharedGames(sharedGames);
+    } catch {
+      enrichedGames = sharedGames;
+    }
+
     const response: FindOverlapResponse = {
       success: true,
       data: {
         profiles: profilesWithSummaries,
-        sharedGames,
+        sharedGames: enrichedGames,
       },
     };
 

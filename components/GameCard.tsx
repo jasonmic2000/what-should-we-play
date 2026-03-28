@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import type { SteamGame } from "@/lib/types";
+import type { EnrichedSharedGame } from "@/lib/types";
 
 interface GameCardProps {
-  game: SteamGame;
+  game: EnrichedSharedGame;
 }
 
 export function GameCard({ game }: GameCardProps) {
@@ -30,9 +30,16 @@ export function GameCard({ game }: GameCardProps) {
         )}
       </div>
       <div className="px-3 py-2">
-        <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
-          {game.name}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            {game.name}
+          </p>
+          {game.isFree === true && (
+            <span className="shrink-0 rounded bg-teal-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none text-teal-600 dark:text-teal-400">
+              Free
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
