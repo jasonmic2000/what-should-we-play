@@ -118,3 +118,12 @@ export interface FindOverlapData {
 }
 
 export type FindOverlapResponse = APIResponse<FindOverlapData>;
+
+// ============================================================================
+// Catalog Types (Drizzle-derived)
+// ============================================================================
+
+import type { catalogGames } from "./db/schema";
+
+export type CatalogGameRow = typeof catalogGames.$inferSelect;
+export type CatalogGameInsert = typeof catalogGames.$inferInsert;
