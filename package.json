@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@sentry/nextjs": "^10.46.0",
+    "@vercel/analytics": "^2.0.1",
     "drizzle-orm": "^0.45.2",
     "lru-cache": "^11.2.7",
     "next": "16.1.6",
