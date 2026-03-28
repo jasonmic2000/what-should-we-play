@@ -7,6 +7,8 @@ export const STEAM_API_ENDPOINTS = {
   resolveVanityUrl: `${STEAM_API_BASE_URL}/ISteamUser/ResolveVanityURL/v0001/`,
   getOwnedGames: `${STEAM_API_BASE_URL}/IPlayerService/GetOwnedGames/v0001/`,
   getPlayerSummaries: `${STEAM_API_BASE_URL}/ISteamUser/GetPlayerSummaries/v0002/`,
+  // Phase 4: backend-only, not exposed in MVP response
+  getRecentlyPlayedGames: `${STEAM_API_BASE_URL}/IPlayerService/GetRecentlyPlayedGames/v0001/`,
 } as const;
 
 export const VANITY_URL_RESOLUTION = {
