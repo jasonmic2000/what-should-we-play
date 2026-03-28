@@ -4,6 +4,7 @@ import {
   runIncrementalSync,
   runDetailEnrichment,
 } from "@/lib/steam/catalog-sync";
+import logger from "@/lib/logger";
 
 const ENRICHMENT_LIMIT = 100;
 
@@ -25,6 +26,10 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   const job = searchParams.get("job");
+  const jobType = job ?? "incremental";
+  const startTime = Date.now();
+
+  logger.info({ msg: "sync-job-start", jobType });
 
   try {
     let result;
@@ -41,13 +46,28 @@ export async function GET(request: NextRequest) {
         break;
     }
 
+    logger.info({
+      msg: "sync-job-complete",
+      jobType,
+      status: result.status,
+      itemsProcessed: result.itemsProcessed,
+      durationMs: Date.now() - startTime,
+    });
+
     const statusCode = result.status === "completed" ? 200 : 500;
     return NextResponse.json(result, { status: statusCode });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error";
+
+    logger.error({
+      msg: "sync-job-error",
+      jobType,
+      errorMessage: message,
+    });
+
     return NextResponse.json(
-      { jobType: job ?? "incremental", status: "failed", errorMessage: message },
+      { jobType, status: "failed", errorMessage: message },
       { status: 500 },
     );
   }
