@@ -1,0 +1,1 @@
+ALTER TABLE "catalog_games" ALTER COLUMN "is_free" DROP DEFAULT;
