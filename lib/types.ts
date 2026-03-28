@@ -120,6 +120,32 @@ export interface FindOverlapData {
 export type FindOverlapResponse = APIResponse<FindOverlapData>;
 
 // ============================================================================
+// Steam Catalog API Types
+// ============================================================================
+
+export interface SteamAppListApp {
+  appid: number;
+  name: string;
+  last_modified: number;
+  price_change_number: number;
+}
+
+export interface SteamAppListResponse {
+  response: {
+    apps: SteamAppListApp[];
+    have_more_results?: boolean;
+    last_appid?: number;
+  };
+}
+
+export interface SyncResult {
+  jobType: string;
+  status: "completed" | "failed";
+  itemsProcessed: number;
+  errorMessage?: string;
+}
+
+// ============================================================================
 // Catalog Types (Drizzle-derived)
 // ============================================================================
 
