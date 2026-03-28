@@ -57,6 +57,7 @@ vi.stubEnv("STEAM_API_KEY", "test-key");
 import {
   fetchAppList,
   fetchAppDetails,
+  runBackfillSync,
   runIncrementalSync,
   runDetailEnrichment,
 } from "./catalog-sync";
@@ -251,6 +252,70 @@ describe("fetchAppDetails", () => {
 });
 
 // ===========================================================================
+// runBackfillSync
+// ===========================================================================
+
+describe("runBackfillSync", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    returningMock.mockResolvedValue([{ id: 1 }]);
+  });
+
+  it("paginates through multiple pages until have_more_results is false", async () => {
+    // Page 1: has more results
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          response: {
+            apps: [
+              { appid: 10, name: "Game A", last_modified: 1700000000, price_change_number: 1 },
+              { appid: 20, name: "Game B", last_modified: 1700000001, price_change_number: 2 },
+            ],
+            have_more_results: true,
+            last_appid: 20,
+          },
+        }),
+    });
+
+    // Page 2: no more results
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          response: {
+            apps: [
+              { appid: 30, name: "Game C", last_modified: 1700000002, price_change_number: 3 },
+            ],
+            have_more_results: false,
+          },
+        }),
+    });
+
+    const result = await runBackfillSync();
+
+    expect(result.jobType).toBe("backfill");
+    expect(result.status).toBe("completed");
+    expect(result.itemsProcessed).toBe(3);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(upsertGamesMock).toHaveBeenCalledTimes(2);
+
+    // Second fetch should use last_appid from first page
+    const secondCallUrl = new URL(fetchMock.mock.calls[1][0].toString());
+    expect(secondCallUrl.searchParams.get("last_appid")).toBe("20");
+  });
+
+  it("returns failed status on fetch error", async () => {
+    fetchMock.mockRejectedValueOnce(new Error("Network failure"));
+
+    const result = await runBackfillSync();
+
+    expect(result.status).toBe("failed");
+    expect(result.errorMessage).toContain("Network failure");
+  });
+});
+
+// ===========================================================================
 // runIncrementalSync
 // ===========================================================================
 
@@ -312,6 +377,44 @@ describe("runIncrementalSync", () => {
 
     expect(result.status).toBe("failed");
     expect(result.errorMessage).toContain("Network failure");
+  });
+
+  it("paginates through multiple pages during incremental sync", async () => {
+    // Page 1: has more results
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          response: {
+            apps: [
+              { appid: 100, name: "Updated Game", last_modified: 1700000010, price_change_number: 5 },
+            ],
+            have_more_results: true,
+            last_appid: 100,
+          },
+        }),
+    });
+
+    // Page 2: done
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          response: {
+            apps: [
+              { appid: 200, name: "Another Game", last_modified: 1700000011, price_change_number: 6 },
+            ],
+            have_more_results: false,
+          },
+        }),
+    });
+
+    const result = await runIncrementalSync();
+
+    expect(result.status).toBe("completed");
+    expect(result.itemsProcessed).toBe(2);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(upsertGamesMock).toHaveBeenCalledTimes(2);
   });
 });
 

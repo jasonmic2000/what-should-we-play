@@ -91,6 +91,46 @@ describe("enrichSharedGames", () => {
     expect(result[1]).not.toHaveProperty("isFree");
   });
 
+  it("does NOT filter games where isFree is null (unknown)", async () => {
+    const games = [
+      makeGame({ appId: 730, name: "Counter-Strike 2" }),
+      makeGame({ appId: 440, name: "Team Fortress 2" }),
+    ];
+
+    getGamesByAppIdsMock.mockResolvedValue(
+      new Map([
+        [730, { appId: 730, name: "Counter-Strike 2", isFree: null, isGroupPlayable: null }],
+        [440, { appId: 440, name: "Team Fortress 2", isFree: null, isGroupPlayable: null }],
+      ]),
+    );
+
+    const result = await enrichSharedGames(games);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ appId: 730, isFree: null });
+    expect(result[1]).toMatchObject({ appId: 440, isFree: null });
+  });
+
+  it("does NOT filter games where isFree is false", async () => {
+    const games = [
+      makeGame({ appId: 730, name: "Counter-Strike 2" }),
+      makeGame({ appId: 440, name: "Team Fortress 2" }),
+    ];
+
+    getGamesByAppIdsMock.mockResolvedValue(
+      new Map([
+        [730, { appId: 730, name: "Counter-Strike 2", isFree: false, isGroupPlayable: true }],
+        [440, { appId: 440, name: "Team Fortress 2", isFree: false, isGroupPlayable: null }],
+      ]),
+    );
+
+    const result = await enrichSharedGames(games);
+
+    expect(result).toHaveLength(2);
+    expect(result[0]).toMatchObject({ appId: 730, isFree: false });
+    expect(result[1]).toMatchObject({ appId: 440, isFree: false });
+  });
+
   it("returns unenriched games when DB call fails", async () => {
     const games = [
       makeGame({ appId: 730, name: "Counter-Strike 2" }),
