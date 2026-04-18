@@ -12,6 +12,7 @@ import { fetchBatch, fetchPlayerSummaries } from "@/lib/steam/game-fetcher";
 import { resolveBatch } from "@/lib/steam/profile-resolver";
 import { SteamOverlapError, toSteamOverlapError } from "@/lib/steam/errors";
 import { enrichSharedGames } from "@/lib/steam/result-enricher";
+import logger from "@/lib/logger";
 import {
   FindOverlapRequest,
   FindOverlapResponse,
@@ -125,6 +126,8 @@ function mergePlayerSummaries(
 }
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+
   try {
     // Rate limit check — before any body parsing
     const forwarded = request.headers.get("x-forwarded-for");
@@ -225,8 +228,24 @@ export async function POST(request: Request) {
       },
     };
 
+    logger.info({
+      msg: "overlap-request",
+      profileCount: validatedBody.profiles.length,
+      sharedGameCount: enrichedGames.length,
+      durationMs: Date.now() - startTime,
+      forceRefresh: effectiveForceRefresh,
+    });
+
     return NextResponse.json(response);
   } catch (error) {
-    return createErrorResponse(toSteamOverlapError(error));
+    const steamError = toSteamOverlapError(error);
+
+    logger.error({
+      msg: "overlap-request-error",
+      errorCode: steamError.code,
+      durationMs: Date.now() - startTime,
+    });
+
+    return createErrorResponse(steamError);
   }
 }

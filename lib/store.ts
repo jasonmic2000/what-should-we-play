@@ -1,9 +1,16 @@
 "use client";
 
 import { create } from "zustand";
+import posthog from "posthog-js";
 import type { FindOverlapData, FindOverlapResponse, APIError } from "./types";
 import { MAX_PROFILE_COUNT } from "./constants";
 import { isValidSteamProfileUrl } from "./steam/validate-url";
+
+function capture(event: string, properties?: Record<string, unknown>) {
+  if (typeof window !== "undefined") {
+    posthog.capture(event, properties);
+  }
+}
 
 export type ProfileStatus = "pending" | "valid" | "invalid" | "duplicate";
 
@@ -79,10 +86,15 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   setResults: (data: FindOverlapData) => {
     set({ results: data, status: "success", error: null });
+    capture("results_displayed", {
+      profileCount: data.profiles.length,
+      sharedGameCount: data.sharedGames.length,
+    });
   },
 
   setError: (error: APIError) => {
     set({ error, status: "error", results: null });
+    capture("error_encountered", { errorCode: error.code });
   },
 
   setStatus: (status: RequestStatus) => {
@@ -92,6 +104,11 @@ export const useAppStore = create<AppState>()((set, get) => ({
   submitProfiles: async (forceRefresh = false) => {
     const { profiles } = get();
     set({ status: "loading", error: null });
+
+    capture("search_submitted", { profileCount: profiles.length });
+    if (forceRefresh) {
+      capture("refresh_triggered");
+    }
 
     try {
       const res = await fetch("/api/find-overlap", {
@@ -107,19 +124,27 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
       if (json.success && json.data) {
         set({ results: json.data, status: "success", error: null });
+        capture("results_displayed", {
+          profileCount: profiles.length,
+          sharedGameCount: json.data.sharedGames.length,
+        });
       } else {
+        const error = json.error ?? { code: "API_ERROR", message: "An unexpected error occurred" };
         set({
-          error: json.error ?? { code: "API_ERROR", message: "An unexpected error occurred" },
+          error,
           status: "error",
           results: null,
         });
+        capture("error_encountered", { errorCode: error.code });
       }
     } catch {
+      const error = { code: "API_ERROR" as const, message: "Failed to connect to the server. Please try again." };
       set({
-        error: { code: "API_ERROR", message: "Failed to connect to the server. Please try again." },
+        error,
         status: "error",
         results: null,
       });
+      capture("error_encountered", { errorCode: error.code });
     }
   },
 
