@@ -202,3 +202,66 @@ export interface AppUser {
   subscriptionTier: "free" | "paid";
   stripeCustomerId?: string;
 }
+
+// ============================================================================
+// Group Types
+// ============================================================================
+
+export type GroupRole = "admin" | "member";
+
+export interface Group {
+  id: string;
+  name: string;
+  creatorUserId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GroupMember {
+  groupId: string;
+  steamId64: string;
+  userId?: string;
+  role: GroupRole;
+  addedAt: string;
+}
+
+export interface GroupWithMembers extends Group {
+  members: GroupMember[];
+}
+
+export interface GroupBookmark {
+  groupId: string;
+  appId: number;
+  addedByUserId: string;
+  addedAt: string;
+}
+
+export interface SharedLink {
+  id: string;
+  groupId: string;
+  createdByUserId: string;
+  snapshotData: OverlapSnapshot;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface OverlapSnapshot {
+  profiles: ResolvedProfile[];
+  sharedGames: EnrichedSharedGame[];
+  generatedAt: string;
+}
+
+export interface SearchHistoryEntry {
+  id: string;
+  userId: string;
+  profilesSearched: string[];
+  sharedGameCount: number;
+  searchedAt: string;
+}
+
+export interface CachedMemberLibrary {
+  groupId: string;
+  steamId64: string;
+  appIds: number[];
+  cachedAt: string;
+}

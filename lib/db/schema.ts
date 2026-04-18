@@ -1,11 +1,13 @@
 import {
   pgTable,
+  primaryKey,
   integer,
   text,
   boolean,
   serial,
   timestamp,
   uuid,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 // ---------------------------------------------------------------------------
@@ -73,3 +75,112 @@ export const users = pgTable("users", {
     .notNull()
     .defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// groups — named collections of Steam profiles
+// ---------------------------------------------------------------------------
+export const groups = pgTable("groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  creatorUserId: uuid("creator_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// group_members — members of a group (composite PK: group + steam profile)
+// ---------------------------------------------------------------------------
+export const groupMembers = pgTable(
+  "group_members",
+  {
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    steamId64: text("steam_id64").notNull(),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    role: text("role").notNull().default("member"), // 'admin' | 'member'
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.groupId, table.steamId64] })],
+);
+
+// ---------------------------------------------------------------------------
+// group_bookmarks — favorited games within a group (composite PK)
+// ---------------------------------------------------------------------------
+export const groupBookmarks = pgTable(
+  "group_bookmarks",
+  {
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    appId: integer("app_id").notNull(),
+    addedByUserId: uuid("added_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    addedAt: timestamp("added_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.groupId, table.appId] })],
+);
+
+// ---------------------------------------------------------------------------
+// shared_links — temporary shareable snapshots of group overlap results
+// ---------------------------------------------------------------------------
+export const sharedLinks = pgTable("shared_links", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  groupId: uuid("group_id")
+    .notNull()
+    .references(() => groups.id, { onDelete: "cascade" }),
+  createdByUserId: uuid("created_by_user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  snapshotData: jsonb("snapshot_data").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// search_history — per-user overlap search history
+// ---------------------------------------------------------------------------
+export const searchHistory = pgTable("search_history", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  profilesSearched: text("profiles_searched").array().notNull(),
+  sharedGameCount: integer("shared_game_count").notNull(),
+  searchedAt: timestamp("searched_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// cached_member_libraries — cached library snapshots for notification diffs
+// ---------------------------------------------------------------------------
+export const cachedMemberLibraries = pgTable(
+  "cached_member_libraries",
+  {
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    steamId64: text("steam_id64").notNull(),
+    appIds: integer("app_ids").array().notNull(),
+    cachedAt: timestamp("cached_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.groupId, table.steamId64] })],
+);
