@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { AppUser } from "@/lib/types";
 
-export default function ProfilePage() {
+function ProfileContent() {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [unlinking, setUnlinking] = useState(false);
@@ -93,7 +93,6 @@ export default function ProfilePage() {
         )}
 
         <div className="mt-6 space-y-6">
-          {/* Email */}
           <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
             <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Email
@@ -103,18 +102,15 @@ export default function ProfilePage() {
             </p>
           </section>
 
-          {/* Steam Account */}
           <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
             <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Steam Account
             </h2>
             {user.steamId64 ? (
               <div className="mt-2 flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-zinc-900 dark:text-zinc-100">
-                    Linked: {user.steamId64}
-                  </p>
-                </div>
+                <p className="text-sm text-zinc-900 dark:text-zinc-100">
+                  Linked: {user.steamId64}
+                </p>
                 <button
                   onClick={handleUnlink}
                   disabled={unlinking}
@@ -138,7 +134,6 @@ export default function ProfilePage() {
             )}
           </section>
 
-          {/* Placeholder: Search History */}
           <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
             <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Search History
@@ -148,7 +143,6 @@ export default function ProfilePage() {
             </p>
           </section>
 
-          {/* Placeholder: Subscription */}
           <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
             <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Subscription
@@ -160,5 +154,19 @@ export default function ProfilePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+        </div>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   );
 }
