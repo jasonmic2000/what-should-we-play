@@ -2,6 +2,7 @@ import { STEAM_API_ENDPOINTS } from "../constants";
 import {
   SteamOwnedGamesResponse,
   SteamPlayerSummariesResponse,
+  SteamRecentlyPlayedGamesResponse,
   SteamResolveVanityURLResponse,
 } from "../types";
 import { SteamOverlapError } from "./errors";
@@ -79,4 +80,14 @@ export function getPlayerSummaries(steamIds: string[]) {
   return steamApiFetch<SteamPlayerSummariesResponse>("getPlayerSummaries", {
     steamids: steamIds.join(","),
   });
+}
+
+export function getRecentlyPlayedGames(steamId64: string) {
+  return steamApiFetch<SteamRecentlyPlayedGamesResponse>(
+    "getRecentlyPlayedGames",
+    {
+      steamid: steamId64,
+      format: "json",
+    },
+  );
 }

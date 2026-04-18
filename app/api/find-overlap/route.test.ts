@@ -12,6 +12,8 @@ const {
   invalidateProfileMock,
   recordRefreshMock,
   checkRateLimitMock,
+  fetchRecentlyPlayedBatchMock,
+  computeRecentlyPlayedRankingMock,
 } = vi.hoisted(() => ({
   parseSteamProfileInputMock: vi.fn(),
   resolveBatchMock: vi.fn(),
@@ -23,6 +25,8 @@ const {
   invalidateProfileMock: vi.fn(),
   recordRefreshMock: vi.fn(),
   checkRateLimitMock: vi.fn().mockReturnValue({ allowed: true }),
+  fetchRecentlyPlayedBatchMock: vi.fn().mockResolvedValue(new Map()),
+  computeRecentlyPlayedRankingMock: vi.fn().mockReturnValue(new Map()),
 }));
 
 vi.mock("@/lib/steam/input-parser", () => ({
@@ -44,6 +48,11 @@ vi.mock("@/lib/steam/overlap-calculator", () => ({
 
 vi.mock("@/lib/steam/result-enricher", () => ({
   enrichSharedGames: enrichSharedGamesMock,
+}));
+
+vi.mock("@/lib/steam/recently-played", () => ({
+  fetchRecentlyPlayedBatch: fetchRecentlyPlayedBatchMock,
+  computeRecentlyPlayedRanking: computeRecentlyPlayedRankingMock,
 }));
 
 vi.mock("@/lib/cache", () => ({
@@ -68,6 +77,8 @@ describe("POST /api/find-overlap", () => {
     invalidateProfileMock.mockReset();
     recordRefreshMock.mockReset();
     checkRateLimitMock.mockReset().mockReturnValue({ allowed: true });
+    fetchRecentlyPlayedBatchMock.mockReset().mockResolvedValue(new Map());
+    computeRecentlyPlayedRankingMock.mockReset().mockReturnValue(new Map());
   });
 
   it("returns invalid input for malformed json", async () => {
@@ -326,7 +337,7 @@ describe("POST /api/find-overlap", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(enrichSharedGamesMock).toHaveBeenCalledWith(overlapGames);
+    expect(enrichSharedGamesMock).toHaveBeenCalledWith(overlapGames, expect.any(Map));
     expect(body.data.sharedGames).toEqual(enrichedGames);
   });
 

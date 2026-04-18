@@ -115,6 +115,7 @@ export interface FindOverlapRequest {
 export interface EnrichedSharedGame extends SteamGame {
   isFree?: boolean | null;
   isGroupPlayable?: boolean | null;
+  recentPlaytimeScore?: number;
 }
 
 export interface FindOverlapData {
@@ -148,6 +149,35 @@ export interface SyncResult {
   status: "completed" | "failed";
   itemsProcessed: number;
   errorMessage?: string;
+}
+
+// ============================================================================
+// Recently Played Types
+// ============================================================================
+
+export interface SteamRecentlyPlayedGame {
+  appid: number;
+  name: string;
+  playtime_2weeks: number;
+  playtime_forever: number;
+  img_icon_url: string;
+}
+
+export interface SteamRecentlyPlayedGamesResponse {
+  response: {
+    total_count: number;
+    games?: SteamRecentlyPlayedGame[];
+  };
+}
+
+export interface RecentlyPlayedLibrary {
+  steamId64: string;
+  totalCount: number;
+  games: Array<{
+    appId: number;
+    playtime2Weeks: number;
+    playtimeForever: number;
+  }>;
 }
 
 // ============================================================================

@@ -12,6 +12,10 @@ import { fetchBatch, fetchPlayerSummaries } from "@/lib/steam/game-fetcher";
 import { resolveBatch } from "@/lib/steam/profile-resolver";
 import { SteamOverlapError, toSteamOverlapError } from "@/lib/steam/errors";
 import { enrichSharedGames } from "@/lib/steam/result-enricher";
+import {
+  fetchRecentlyPlayedBatch,
+  computeRecentlyPlayedRanking,
+} from "@/lib/steam/recently-played";
 import logger from "@/lib/logger";
 import {
   FindOverlapRequest,
@@ -195,6 +199,9 @@ export async function POST(request: Request) {
       fetchPlayerSummaries(steamIds),
       fetchBatch(steamIds, { forceRefresh: effectiveForceRefresh }),
     ]);
+
+    // Best-effort recently played fetch — if it fails, proceed without ranking
+    let recentlyPlayedRanking: Map<number, number> | undefined;
     const profilesWithSummaries = mergePlayerSummaries(
       resolvedProfiles,
       playerSummaries,
@@ -212,10 +219,22 @@ export async function POST(request: Request) {
     });
     const sharedGames = calculateGameOverlap(libraries);
 
+    // Compute recently played ranking if data is available
+    try {
+      const recentlyPlayedMap = await fetchRecentlyPlayedBatch(steamIds);
+      const sharedAppIds = sharedGames.map((g) => g.appId);
+      recentlyPlayedRanking = computeRecentlyPlayedRanking(
+        recentlyPlayedMap,
+        sharedAppIds,
+      );
+    } catch {
+      // Graceful degradation: proceed without ranking
+    }
+
     // Best-effort catalog enrichment — if it fails, fall back to unenriched games
     let enrichedGames;
     try {
-      enrichedGames = await enrichSharedGames(sharedGames);
+      enrichedGames = await enrichSharedGames(sharedGames, recentlyPlayedRanking);
     } catch {
       enrichedGames = sharedGames;
     }

@@ -8,9 +8,11 @@ import type { SteamGame, EnrichedSharedGame } from "@/lib/types";
  * - Filters out games where isFree === true (MVP default)
  * - If a game isn't in the catalog, it's returned as-is (graceful degradation)
  * - If the DB call fails entirely, returns the original games unenriched
+ * - If recentlyPlayedRanking is provided, merges recentPlaytimeScore and sorts descending
  */
 export async function enrichSharedGames(
   sharedGames: SteamGame[],
+  recentlyPlayedRanking?: Map<number, number>,
 ): Promise<EnrichedSharedGame[]> {
   if (sharedGames.length === 0) {
     return [];
@@ -36,16 +38,30 @@ export async function enrichSharedGames(
 
   const enriched: EnrichedSharedGame[] = sharedGames.map((game) => {
     const catalog = catalogMap.get(game.appId);
+    const score = recentlyPlayedRanking?.get(game.appId);
     if (!catalog) {
-      return game;
+      return score !== undefined ? { ...game, recentPlaytimeScore: score } : game;
     }
     return {
       ...game,
       isFree: catalog.isFree,
       isGroupPlayable: catalog.isGroupPlayable,
+      ...(score !== undefined ? { recentPlaytimeScore: score } : {}),
     };
   });
 
   // Filter out F2P titles by default (MVP)
-  return enriched.filter((game) => game.isFree !== true);
+  const filtered = enriched.filter((game) => game.isFree !== true);
+
+  // Sort by recentPlaytimeScore descending if ranking was provided, then alphabetical
+  if (recentlyPlayedRanking) {
+    filtered.sort((a, b) => {
+      const scoreA = a.recentPlaytimeScore ?? 0;
+      const scoreB = b.recentPlaytimeScore ?? 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  return filtered;
 }
