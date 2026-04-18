@@ -9,17 +9,12 @@ function PostHogInit() {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
-    console.log("[PostHog] init check:", { keyPresent: !!key, host });
-
     if (!key) return;
 
     posthog.init(key, {
       api_host: host || "https://us.i.posthog.com",
       autocapture: false,
       capture_pageview: true,
-      loaded: (ph) => {
-        console.log("[PostHog] loaded successfully, distinct_id:", ph.get_distinct_id());
-      },
     });
   }, []);
 
