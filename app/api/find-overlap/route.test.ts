@@ -337,7 +337,7 @@ describe("POST /api/find-overlap", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(enrichSharedGamesMock).toHaveBeenCalledWith(overlapGames, expect.any(Map));
+    expect(enrichSharedGamesMock).toHaveBeenCalledWith(overlapGames, expect.any(Map), false);
     expect(body.data.sharedGames).toEqual(enrichedGames);
   });
 
@@ -429,6 +429,55 @@ describe("POST /api/find-overlap", () => {
     // invalidateProfile and recordRefresh should be called for each profile
     expect(invalidateProfileMock).toHaveBeenCalled();
     expect(recordRefreshMock).toHaveBeenCalled();
+  });
+
+  it("passes multiplayerOnly through to enrichSharedGames", async () => {
+    parseSteamProfileInputMock.mockImplementation((input: string) => {
+      if (input.includes("76561198000000000")) {
+        return {
+          type: "steamid64",
+          identifier: "76561198000000000",
+          originalInput: "https://steamcommunity.com/profiles/76561198000000000",
+          normalizedInput: "https://steamcommunity.com/profiles/76561198000000000",
+        };
+      }
+      return {
+        type: "steamid64",
+        identifier: "76561198000000001",
+        originalInput: "https://steamcommunity.com/profiles/76561198000000001",
+        normalizedInput: "https://steamcommunity.com/profiles/76561198000000001",
+      };
+    });
+
+    resolveBatchMock.mockResolvedValue([
+      { originalUrl: "https://steamcommunity.com/profiles/76561198000000000", steamId64: "76561198000000000", profileUrl: "https://steamcommunity.com/profiles/76561198000000000" },
+      { originalUrl: "https://steamcommunity.com/profiles/76561198000000001", steamId64: "76561198000000001", profileUrl: "https://steamcommunity.com/profiles/76561198000000001" },
+    ]);
+
+    fetchPlayerSummariesMock.mockResolvedValue(new Map());
+    fetchBatchMock.mockResolvedValue(
+      new Map([
+        ["76561198000000000", { steamId64: "76561198000000000", gameCount: 0, isPrivate: false, games: [] }],
+        ["76561198000000001", { steamId64: "76561198000000001", gameCount: 0, isPrivate: false, games: [] }],
+      ]),
+    );
+    calculateGameOverlapMock.mockReturnValue([]);
+
+    const request = new Request("http://localhost/api/find-overlap", {
+      method: "POST",
+      body: JSON.stringify({
+        profiles: [
+          "https://steamcommunity.com/profiles/76561198000000000",
+          "https://steamcommunity.com/profiles/76561198000000001",
+        ],
+        multiplayerOnly: true,
+      }),
+      headers: { "content-type": "application/json" },
+    });
+
+    const response = await POST(request);
+    expect(response.status).toBe(200);
+    expect(enrichSharedGamesMock).toHaveBeenCalledWith([], expect.any(Map), true);
   });
 
   it("rejects forceRefresh when refresh cooldown has not elapsed", async () => {

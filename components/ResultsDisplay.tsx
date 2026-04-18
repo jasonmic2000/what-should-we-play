@@ -12,6 +12,8 @@ interface ResultsDisplayProps {
 export function ResultsDisplay({ data }: ResultsDisplayProps) {
   const submitProfiles = useAppStore((s) => s.submitProfiles);
   const reset = useAppStore((s) => s.reset);
+  const multiplayerOnly = useAppStore((s) => s.multiplayerOnly);
+  const setMultiplayerOnly = useAppStore((s) => s.setMultiplayerOnly);
 
   const { profiles, sharedGames } = data;
 
@@ -41,6 +43,20 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
             : `${sharedGames.length} game${sharedGames.length === 1 ? "" : "s"} in common`}
         </p>
         <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const next = !multiplayerOnly;
+              setMultiplayerOnly(next);
+              submitProfiles();
+            }}
+            className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+              multiplayerOnly
+                ? "border-teal-500 bg-teal-600 text-white dark:border-teal-400 dark:bg-teal-500"
+                : "border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            }`}
+          >
+            Multiplayer only
+          </button>
           <button
             onClick={() => submitProfiles(true)}
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-zinc-800"

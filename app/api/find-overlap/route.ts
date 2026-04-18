@@ -39,9 +39,10 @@ function validateRequestBody(body: unknown): FindOverlapRequest {
     throw new SteamOverlapError("INVALID_INPUT");
   }
 
-  const { profiles, forceRefresh } = body as {
+  const { profiles, forceRefresh, multiplayerOnly } = body as {
     profiles?: unknown;
     forceRefresh?: unknown;
+    multiplayerOnly?: unknown;
   };
 
   if (!Array.isArray(profiles)) {
@@ -64,6 +65,7 @@ function validateRequestBody(body: unknown): FindOverlapRequest {
   return {
     profiles,
     forceRefresh: forceRefresh === true,
+    multiplayerOnly: multiplayerOnly === true,
   };
 }
 
@@ -234,7 +236,7 @@ export async function POST(request: Request) {
     // Best-effort catalog enrichment — if it fails, fall back to unenriched games
     let enrichedGames;
     try {
-      enrichedGames = await enrichSharedGames(sharedGames, recentlyPlayedRanking);
+      enrichedGames = await enrichSharedGames(sharedGames, recentlyPlayedRanking, validatedBody.multiplayerOnly);
     } catch {
       enrichedGames = sharedGames;
     }

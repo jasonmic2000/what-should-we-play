@@ -146,4 +146,83 @@ describe("enrichSharedGames", () => {
     expect(result[0]).toMatchObject({ appId: 730, name: "Counter-Strike 2" });
     expect(result[0]).not.toHaveProperty("isFree");
   });
+
+  describe("multiplayerOnly filtering", () => {
+    it("filters out games where isGroupPlayable === false when multiplayerOnly is true", async () => {
+      const games = [
+        makeGame({ appId: 730, name: "Counter-Strike 2" }),
+        makeGame({ appId: 440, name: "Team Fortress 2" }),
+        makeGame({ appId: 100, name: "Single Player Game" }),
+      ];
+
+      getGamesByAppIdsMock.mockResolvedValue(
+        new Map([
+          [730, { appId: 730, name: "Counter-Strike 2", isFree: false, isGroupPlayable: true }],
+          [440, { appId: 440, name: "Team Fortress 2", isFree: false, isGroupPlayable: true }],
+          [100, { appId: 100, name: "Single Player Game", isFree: false, isGroupPlayable: false }],
+        ]),
+      );
+
+      const result = await enrichSharedGames(games, undefined, true);
+
+      expect(result).toHaveLength(2);
+      expect(result.map((g) => g.appId)).toEqual([730, 440]);
+    });
+
+    it("keeps games where isGroupPlayable is null/undefined when multiplayerOnly is true", async () => {
+      const games = [
+        makeGame({ appId: 730, name: "Counter-Strike 2" }),
+        makeGame({ appId: 440, name: "Unknown Game" }),
+        makeGame({ appId: 99999, name: "Not In Catalog" }),
+      ];
+
+      getGamesByAppIdsMock.mockResolvedValue(
+        new Map([
+          [730, { appId: 730, name: "Counter-Strike 2", isFree: false, isGroupPlayable: true }],
+          [440, { appId: 440, name: "Unknown Game", isFree: false, isGroupPlayable: null }],
+        ]),
+      );
+
+      const result = await enrichSharedGames(games, undefined, true);
+
+      expect(result).toHaveLength(3);
+      expect(result.map((g) => g.appId)).toEqual([730, 440, 99999]);
+    });
+
+    it("keeps games where isGroupPlayable === true when multiplayerOnly is true", async () => {
+      const games = [
+        makeGame({ appId: 730, name: "Counter-Strike 2" }),
+      ];
+
+      getGamesByAppIdsMock.mockResolvedValue(
+        new Map([
+          [730, { appId: 730, name: "Counter-Strike 2", isFree: false, isGroupPlayable: true }],
+        ]),
+      );
+
+      const result = await enrichSharedGames(games, undefined, true);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({ appId: 730, isGroupPlayable: true });
+    });
+
+    it("does not filter by multiplayer when multiplayerOnly is false", async () => {
+      const games = [
+        makeGame({ appId: 730, name: "Counter-Strike 2" }),
+        makeGame({ appId: 100, name: "Single Player Game" }),
+      ];
+
+      getGamesByAppIdsMock.mockResolvedValue(
+        new Map([
+          [730, { appId: 730, name: "Counter-Strike 2", isFree: false, isGroupPlayable: true }],
+          [100, { appId: 100, name: "Single Player Game", isFree: false, isGroupPlayable: false }],
+        ]),
+      );
+
+      const result = await enrichSharedGames(games, undefined, false);
+
+      expect(result).toHaveLength(2);
+      expect(result.map((g) => g.appId)).toEqual([730, 100]);
+    });
+  });
 });

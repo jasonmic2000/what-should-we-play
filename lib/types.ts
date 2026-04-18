@@ -110,6 +110,7 @@ export interface APIResponse<T> {
 export interface FindOverlapRequest {
   profiles: string[];
   forceRefresh?: boolean;
+  multiplayerOnly?: boolean;
 }
 
 export interface EnrichedSharedGame extends SteamGame {

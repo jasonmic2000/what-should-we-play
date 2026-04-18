@@ -27,6 +27,7 @@ interface AppState {
   results: FindOverlapData | null;
   error: APIError | null;
   status: RequestStatus;
+  multiplayerOnly: boolean;
 
   addProfile: (url: string) => { success: boolean; errorMessage?: string };
   removeProfile: (url: string) => void;
@@ -34,6 +35,7 @@ interface AppState {
   setResults: (data: FindOverlapData) => void;
   setError: (error: APIError) => void;
   setStatus: (status: RequestStatus) => void;
+  setMultiplayerOnly: (value: boolean) => void;
   submitProfiles: (forceRefresh?: boolean) => Promise<void>;
   reset: () => void;
 }
@@ -43,6 +45,7 @@ const initialState = {
   results: null as FindOverlapData | null,
   error: null as APIError | null,
   status: "idle" as RequestStatus,
+  multiplayerOnly: false,
 };
 
 export const useAppStore = create<AppState>()((set, get) => ({
@@ -101,8 +104,12 @@ export const useAppStore = create<AppState>()((set, get) => ({
     set({ status });
   },
 
+  setMultiplayerOnly: (value: boolean) => {
+    set({ multiplayerOnly: value });
+  },
+
   submitProfiles: async (forceRefresh = false) => {
-    const { profiles } = get();
+    const { profiles, multiplayerOnly } = get();
     set({ status: "loading", error: null });
 
     capture("search_submitted", { profileCount: profiles.length });
@@ -117,6 +124,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         body: JSON.stringify({
           profiles: profiles.map((p) => p.url),
           forceRefresh,
+          multiplayerOnly,
         }),
       });
 

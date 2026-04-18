@@ -9,10 +9,13 @@ import type { SteamGame, EnrichedSharedGame } from "@/lib/types";
  * - If a game isn't in the catalog, it's returned as-is (graceful degradation)
  * - If the DB call fails entirely, returns the original games unenriched
  * - If recentlyPlayedRanking is provided, merges recentPlaytimeScore and sorts descending
+ * - If multiplayerOnly is true, filters out games where isGroupPlayable === false
+ *   (games with null/undefined isGroupPlayable are kept — we don't hide unenriched games)
  */
 export async function enrichSharedGames(
   sharedGames: SteamGame[],
   recentlyPlayedRanking?: Map<number, number>,
+  multiplayerOnly?: boolean,
 ): Promise<EnrichedSharedGame[]> {
   if (sharedGames.length === 0) {
     return [];
@@ -53,9 +56,16 @@ export async function enrichSharedGames(
   // Filter out F2P titles by default (MVP)
   const filtered = enriched.filter((game) => game.isFree !== true);
 
+  // Filter to multiplayer-only if requested
+  // Only exclude games we KNOW are not multiplayer (isGroupPlayable === false)
+  // Keep games where isGroupPlayable is null/undefined (unknown/unenriched)
+  const multiplayerFiltered = multiplayerOnly
+    ? filtered.filter((game) => game.isGroupPlayable !== false)
+    : filtered;
+
   // Sort by recentPlaytimeScore descending if ranking was provided, then alphabetical
   if (recentlyPlayedRanking) {
-    filtered.sort((a, b) => {
+    multiplayerFiltered.sort((a, b) => {
       const scoreA = a.recentPlaytimeScore ?? 0;
       const scoreB = b.recentPlaytimeScore ?? 0;
       if (scoreB !== scoreA) return scoreB - scoreA;
@@ -63,5 +73,5 @@ export async function enrichSharedGames(
     });
   }
 
-  return filtered;
+  return multiplayerFiltered;
 }

@@ -98,11 +98,30 @@ describe("useAppStore", () => {
     it("resets all state to initial values", () => {
       useAppStore.getState().addProfile("https://steamcommunity.com/id/gaben");
       useAppStore.getState().setStatus("loading");
+      useAppStore.getState().setMultiplayerOnly(true);
       useAppStore.getState().reset();
       expect(useAppStore.getState().profiles).toHaveLength(0);
       expect(useAppStore.getState().results).toBeNull();
       expect(useAppStore.getState().error).toBeNull();
       expect(useAppStore.getState().status).toBe("idle");
+      expect(useAppStore.getState().multiplayerOnly).toBe(false);
+    });
+  });
+
+  describe("multiplayerOnly", () => {
+    it("defaults to false", () => {
+      expect(useAppStore.getState().multiplayerOnly).toBe(false);
+    });
+
+    it("can be set to true via setMultiplayerOnly", () => {
+      useAppStore.getState().setMultiplayerOnly(true);
+      expect(useAppStore.getState().multiplayerOnly).toBe(true);
+    });
+
+    it("can be toggled back to false", () => {
+      useAppStore.getState().setMultiplayerOnly(true);
+      useAppStore.getState().setMultiplayerOnly(false);
+      expect(useAppStore.getState().multiplayerOnly).toBe(false);
     });
   });
 });
