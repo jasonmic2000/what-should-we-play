@@ -1,13 +1,19 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState, useEffect, useCallback } from "react";
+import type { KeyboardEvent } from "react";
 import { useAppStore } from "@/lib/store";
 import { ProfileChip } from "./ProfileChip";
+import { SearchGateModal } from "./SearchGateModal";
 import { MIN_PROFILE_COUNT, MAX_PROFILE_COUNT } from "@/lib/constants";
+import { isSearchGated, incrementSearchCount } from "@/lib/search-gate";
+import { createClient } from "@/lib/supabase/client";
 
 export function ProfileInputForm() {
   const [inputValue, setInputValue] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showGateModal, setShowGateModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const profiles = useAppStore((s) => s.profiles);
   const addProfile = useAppStore((s) => s.addProfile);
@@ -16,6 +22,34 @@ export function ProfileInputForm() {
 
   const isAtCap = profiles.length >= MAX_PROFILE_COUNT;
   const canSubmit = profiles.length >= MIN_PROFILE_COUNT;
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAuthenticated(!!data.user);
+    });
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
+    // Authenticated users bypass the gate entirely
+    if (isAuthenticated) {
+      await submitProfiles();
+      return;
+    }
+
+    // Anonymous: check if gated
+    if (isSearchGated()) {
+      setShowGateModal(true);
+      return;
+    }
+
+    // Anonymous: proceed and increment count on success
+    await submitProfiles();
+    const { status } = useAppStore.getState();
+    if (status === "success") {
+      incrementSearchCount();
+    }
+  }, [isAuthenticated, submitProfiles]);
 
   function handleAdd() {
     const value = inputValue.trim();
@@ -95,12 +129,16 @@ export function ProfileInputForm() {
         <button
           type="button"
           disabled={!canSubmit}
-          onClick={() => submitProfiles()}
+          onClick={handleSubmit}
           className="rounded-lg px-5 py-2.5 text-sm font-medium transition-colors bg-teal-600 text-white hover:bg-teal-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-teal-500 dark:hover:bg-teal-400"
         >
           Find Games
         </button>
       </div>
+
+      {showGateModal && (
+        <SearchGateModal onClose={() => setShowGateModal(false)} />
+      )}
     </div>
   );
 }
