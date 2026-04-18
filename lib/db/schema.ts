@@ -5,6 +5,7 @@ import {
   boolean,
   serial,
   timestamp,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 // ---------------------------------------------------------------------------
@@ -51,6 +52,24 @@ export const catalogSyncStatus = pgTable("catalog_sync_status", {
   lastModifiedSince: timestamp("last_modified_since", { withTimezone: true }),
   errorMessage: text("error_message"),
   createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// users — extends Supabase auth.users with app-specific profile data
+// ---------------------------------------------------------------------------
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey(), // matches auth.users.id
+  email: text("email").notNull(),
+  displayName: text("display_name"),
+  steamId64: text("steam_id64").unique(),
+  subscriptionTier: text("subscription_tier").notNull().default("free"),
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

@@ -15,6 +15,13 @@
       "when": 1774690559565,
       "tag": "0001_gray_flatman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776511392201,
+      "tag": "0002_cold_shaman",
+      "breakpoints": true
     }
   ]
 }

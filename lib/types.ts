@@ -189,3 +189,16 @@ import type { catalogGames } from "./db/schema";
 
 export type CatalogGameRow = typeof catalogGames.$inferSelect;
 export type CatalogGameInsert = typeof catalogGames.$inferInsert;
+
+// ============================================================================
+// Auth / User Types
+// ============================================================================
+
+export interface AppUser {
+  id: string;
+  email: string;
+  displayName?: string;
+  steamId64?: string;
+  subscriptionTier: "free" | "paid";
+  stripeCustomerId?: string;
+}

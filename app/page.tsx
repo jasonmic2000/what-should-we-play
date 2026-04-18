@@ -2,6 +2,7 @@
 
 import { useAppStore } from "@/lib/store";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AuthButton } from "@/components/AuthButton";
 import { ProfileInputForm } from "@/components/ProfileInputForm";
 import { LoadingState } from "@/components/LoadingState";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
@@ -16,7 +17,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 font-sans dark:bg-zinc-950">
       {/* Top bar */}
-      <div className="flex justify-end px-4 py-3">
+      <div className="flex items-center justify-end gap-2 px-4 py-3">
+        <AuthButton />
         <ThemeToggle />
       </div>
 
