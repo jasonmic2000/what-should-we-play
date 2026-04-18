@@ -9,6 +9,10 @@ const DEFAULT_ERROR_MESSAGES: Record<APIErrorCode, string> = {
     "One or more game libraries are private. All users must set their game details to public in Steam Privacy Settings",
   API_ERROR: "Steam API is temporarily unavailable. Please try again in a moment",
   RATE_LIMIT: "Too many requests. Please wait a moment before trying again.",
+  UNAUTHORIZED: "You must be logged in to access this resource.",
+  FORBIDDEN: "You do not have permission to perform this action.",
+  NOT_FOUND: "The requested resource was not found.",
+  GROUP_LIMIT_REACHED: "Free tier is limited to 1 group. Upgrade to create more groups.",
 };
 
 const ERROR_STATUS_CODES: Record<APIErrorCode, number> = {
@@ -17,6 +21,10 @@ const ERROR_STATUS_CODES: Record<APIErrorCode, number> = {
   PRIVATE_LIBRARY: 400,
   API_ERROR: 502,
   RATE_LIMIT: 429,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  GROUP_LIMIT_REACHED: 403,
 };
 
 interface SteamOverlapErrorOptions {

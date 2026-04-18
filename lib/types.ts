@@ -92,7 +92,11 @@ export type APIErrorCode =
   | "PROFILE_RESOLUTION_FAILED"
   | "PRIVATE_LIBRARY"
   | "API_ERROR"
-  | "RATE_LIMIT";
+  | "RATE_LIMIT"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "GROUP_LIMIT_REACHED";
 
 export interface APIError {
   code: APIErrorCode;
