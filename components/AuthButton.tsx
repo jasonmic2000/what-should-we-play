@@ -53,6 +53,12 @@ export function AuthButton() {
   return (
     <div className="flex items-center gap-3">
       <Link
+        href="/groups"
+        className="text-sm text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+      >
+        Groups
+      </Link>
+      <Link
         href="/profile"
         className="text-sm text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
