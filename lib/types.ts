@@ -274,3 +274,10 @@ export interface CachedMemberLibrary {
   appIds: number[];
   cachedAt: string;
 }
+
+export interface NewGameNotification {
+  appId: number;
+  name: string;
+  headerImageUrl: string;
+  addedBy: string; // persona name or steamId64 of the member who got the game
+}

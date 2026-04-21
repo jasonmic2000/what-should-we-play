@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import type {
   GroupWithMembers,
   GroupRole,
@@ -11,6 +12,7 @@ import type {
   AppUser,
   BookmarkedGame,
   EnrichedSharedGame,
+  NewGameNotification,
 } from "@/lib/types";
 import { MemberList } from "@/components/MemberList";
 import { GroupMemberInput } from "@/components/GroupMemberInput";
@@ -39,6 +41,7 @@ export default function GroupDetailPage() {
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
   const [shareCopied, setShareCopied] = useState(false);
+  const [notifications, setNotifications] = useState<NewGameNotification[]>([]);
   const router = useRouter();
   const params = useParams();
   const groupId = params.id as string;
@@ -87,13 +90,32 @@ export default function GroupDetailPage() {
 
       // Fetch current user profile
       const meRes = await fetch("/api/auth/me");
+      let meJson: { user?: AppUser } | null = null;
       if (meRes.ok) {
-        const meJson = await meRes.json();
-        setCurrentUser(meJson.user);
+        meJson = await meRes.json();
+        if (meJson?.user) {
+          setCurrentUser(meJson.user);
+        }
       }
 
       await loadGroup();
       await loadBookmarks();
+
+      // Fetch notifications for paid users (event-driven on page visit)
+      if (meJson?.user?.subscriptionTier === "paid") {
+        try {
+          const notifRes = await fetch(`/api/groups/${groupId}/notifications`);
+          if (notifRes.ok) {
+            const notifJson = await notifRes.json();
+            if (notifJson.success && notifJson.data?.notifications) {
+              setNotifications(notifJson.data.notifications);
+            }
+          }
+        } catch {
+          // Notifications are non-critical — don't block page load
+        }
+      }
+
       setLoading(false);
     }
     init();
@@ -480,6 +502,56 @@ export default function GroupDetailPage() {
             />
           </div>
         </section>
+
+        {/* Notifications section */}
+        {isPaidUser && notifications.length > 0 && (
+          <section className="mt-6 rounded-lg border border-teal-300 bg-teal-50 p-4 dark:border-teal-500/30 dark:bg-teal-500/10">
+            <h2 className="text-sm font-medium text-teal-700 dark:text-teal-300">
+              New since last visit
+            </h2>
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {notifications.map((notif) => (
+                <div
+                  key={notif.appId}
+                  className="relative overflow-hidden rounded-lg border border-teal-200 bg-white dark:border-teal-500/20 dark:bg-zinc-900"
+                >
+                  <span className="absolute top-2 right-2 z-10 rounded-full bg-teal-500 px-2 py-0.5 text-[10px] font-semibold uppercase leading-none text-white">
+                    New!
+                  </span>
+                  <div className="relative aspect-[460/215] w-full bg-zinc-200 dark:bg-zinc-800">
+                    <Image
+                      src={notif.headerImageUrl}
+                      alt={notif.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="px-3 py-2">
+                    <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                      {notif.name}
+                    </p>
+                    <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                      Added by {notif.addedBy}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {!isPaidUser && (
+          <section className="mt-6">
+            <p className="text-sm text-zinc-400 dark:text-zinc-500">
+              <span className="text-teal-600 dark:text-teal-400">
+                Upgrade to see what&apos;s new
+              </span>{" "}
+              — get notified when group members add games that match your
+              overlap.
+            </p>
+          </section>
+        )}
 
         {/* Overlap section */}
         <section className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
