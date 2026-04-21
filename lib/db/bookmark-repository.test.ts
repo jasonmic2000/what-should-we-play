@@ -59,6 +59,13 @@ describe("bookmark-repository", () => {
       });
       expect(insertOnConflictMock).toHaveBeenCalled();
     });
+
+    it("is idempotent — adding the same bookmark twice does not throw", async () => {
+      await addBookmark("group-1", 440, "user-1");
+      await addBookmark("group-1", 440, "user-1");
+
+      expect(insertOnConflictMock).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe("removeBookmark", () => {
@@ -118,6 +125,34 @@ describe("bookmark-repository", () => {
       const result = await getBookmarks("group-1");
 
       expect(result).toHaveLength(0);
+    });
+
+    it("returns multiple bookmarks with correct header image URLs", async () => {
+      selectResults = [
+        [
+          {
+            groupId: "group-1",
+            appId: 440,
+            addedByUserId: "user-1",
+            addedAt: NOW,
+            name: "Team Fortress 2",
+          },
+          {
+            groupId: "group-1",
+            appId: 730,
+            addedByUserId: "user-1",
+            addedAt: NOW,
+            name: "Counter-Strike 2",
+          },
+        ],
+      ];
+
+      const result = await getBookmarks("group-1");
+
+      expect(result).toHaveLength(2);
+      expect(result[0].headerImageUrl).toContain("440");
+      expect(result[1].headerImageUrl).toContain("730");
+      expect(result[1].name).toBe("Counter-Strike 2");
     });
   });
 });

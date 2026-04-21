@@ -80,5 +80,15 @@ describe("notification-repository", () => {
       );
       expect(insertOnConflictMock).toHaveBeenCalled();
     });
+
+    it("handles empty appIds array", async () => {
+      await updateCachedLibrary("group-1", "76561198000000001", []);
+
+      expect(insertValuesMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          appIds: [],
+        }),
+      );
+    });
   });
 });

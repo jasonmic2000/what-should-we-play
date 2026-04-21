@@ -146,6 +146,33 @@ describe("group-repository", () => {
       expect(result.members).toHaveLength(1);
       expect(result.members[0].role).toBe("member");
     });
+
+    it("creates a group with no additional members when memberSteamIds is empty", async () => {
+      selectResults = [
+        [{ steamId64: "76561198000000001" }],
+        [makeMemberRow()],
+      ];
+      insertReturningResults = [[makeGroupRow()]];
+
+      const result = await createGroup("user-1", "Test Group", []);
+
+      expect(result.members).toHaveLength(1);
+      expect(result.members[0].role).toBe("admin");
+    });
+
+    it("deduplicates when creator steamId is included in memberSteamIds", async () => {
+      selectResults = [
+        [{ steamId64: "76561198000000001" }],
+        [makeMemberRow()],
+      ];
+      insertReturningResults = [[makeGroupRow()]];
+
+      const result = await createGroup("user-1", "Test Group", ["76561198000000001"]);
+
+      // Creator's steamId should not be added twice
+      expect(result.members).toHaveLength(1);
+      expect(result.members[0].role).toBe("admin");
+    });
   });
 
   describe("getGroupById", () => {
@@ -194,6 +221,32 @@ describe("group-repository", () => {
       const result = await getUserGroups("user-1");
 
       expect(result).toHaveLength(0);
+    });
+
+    it("deduplicates groups where user is both creator and member", async () => {
+      selectResults = [
+        [makeGroupRow()],                          // created groups
+        [{ groupId: "group-1" }],                  // member group rows (same group)
+      ];
+
+      const result = await getUserGroups("user-1");
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("merges created and member-of groups", async () => {
+      selectResults = [
+        [makeGroupRow()],                          // created groups
+        [{ groupId: "group-2" }],                  // member of a different group
+        [makeGroupRow({ id: "group-2", name: "Other Group", creatorUserId: "user-2" })], // fetched group-2
+      ];
+
+      const result = await getUserGroups("user-1");
+
+      expect(result).toHaveLength(2);
+      const ids = result.map((g) => g.id);
+      expect(ids).toContain("group-1");
+      expect(ids).toContain("group-2");
     });
   });
 

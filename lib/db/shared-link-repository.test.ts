@@ -99,6 +99,22 @@ describe("shared-link-repository", () => {
       const callArg = insertValuesMock.mock.calls[0][0];
       expect(callArg.expiresAt).toBeInstanceOf(Date);
     });
+
+    it("sets expiresAt approximately 24 hours in the future", async () => {
+      insertReturningResults = [[{ id: "link-uuid-456" }]];
+      const before = Date.now();
+
+      await createSharedLink("group-1", "user-1", mockSnapshot);
+
+      const after = Date.now();
+      const callArg = insertValuesMock.mock.calls[0][0];
+      const expiresMs = callArg.expiresAt.getTime();
+      const twentyFourHoursMs = 24 * 60 * 60 * 1000;
+
+      // expiresAt should be within a reasonable window of 24h from now
+      expect(expiresMs).toBeGreaterThanOrEqual(before + twentyFourHoursMs - 1000);
+      expect(expiresMs).toBeLessThanOrEqual(after + twentyFourHoursMs + 1000);
+    });
   });
 
   describe("getSharedLink", () => {

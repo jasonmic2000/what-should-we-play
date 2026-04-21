@@ -114,5 +114,36 @@ describe("search-history-repository", () => {
 
       expect(selectChain.limit).toHaveBeenCalledWith(20);
     });
+
+    it("returns multiple entries preserving order", async () => {
+      const searchedAt1 = new Date("2025-01-15T12:00:00Z");
+      const searchedAt2 = new Date("2025-01-14T10:00:00Z");
+      selectResults = [
+        [
+          {
+            id: "entry-1",
+            userId: "user-1",
+            profilesSearched: ["76561198000000001"],
+            sharedGameCount: 5,
+            searchedAt: searchedAt1,
+          },
+          {
+            id: "entry-2",
+            userId: "user-1",
+            profilesSearched: ["76561198000000001", "76561198000000002", "76561198000000003"],
+            sharedGameCount: 0,
+            searchedAt: searchedAt2,
+          },
+        ],
+      ];
+
+      const result = await getSearchHistory("user-1");
+
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe("entry-1");
+      expect(result[1].id).toBe("entry-2");
+      expect(result[1].sharedGameCount).toBe(0);
+      expect(result[1].profilesSearched).toHaveLength(3);
+    });
   });
 });

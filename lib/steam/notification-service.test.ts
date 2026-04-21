@@ -180,4 +180,115 @@ describe("notification-service", () => {
 
     expect(result).toEqual([]);
   });
+
+  it("detects new overlap across 3 members", async () => {
+    const STEAM_ID_3 = "76561198000000003";
+    mockGetCachedLibraries.mockResolvedValue(
+      new Map([
+        [STEAM_ID_1, [440]],
+        [STEAM_ID_2, [440, 730]],
+        [STEAM_ID_3, [440, 730]],
+      ]),
+    );
+    // Member1 now also has 730 — all 3 share it
+    mockFetchGames
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_1, [440, 730], ["TF2", "CS2"]))
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_2, [440, 730], ["TF2", "CS2"]))
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_3, [440, 730], ["TF2", "CS2"]));
+
+    const summaries = new Map<string, SteamPlayerSummary>();
+    summaries.set(STEAM_ID_1, {
+      steamid: STEAM_ID_1,
+      personaname: "Player1",
+      profileurl: "",
+      avatar: "",
+      avatarmedium: "",
+      avatarfull: "",
+    });
+    mockFetchPlayerSummaries.mockResolvedValue(summaries);
+
+    const result = await checkForNewGames(
+      "group-1",
+      makeMembers(STEAM_ID_1, STEAM_ID_2, STEAM_ID_3),
+    );
+
+    expect(result).toHaveLength(1);
+    expect(result[0].appId).toBe(730);
+  });
+
+  it("handles partial fetch failure gracefully when enough members remain", async () => {
+    mockGetCachedLibraries.mockResolvedValue(
+      new Map([
+        [STEAM_ID_1, [440]],
+        [STEAM_ID_2, [440]],
+      ]),
+    );
+    // Member1 fetch fails, member2 succeeds
+    mockFetchGames
+      .mockRejectedValueOnce(new Error("Steam API down"))
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_2, [440, 730]));
+
+    const result = await checkForNewGames(
+      "group-1",
+      makeMembers(STEAM_ID_1, STEAM_ID_2),
+    );
+
+    // Only 1 member fetched successfully — fewer than 2, so empty result
+    expect(result).toEqual([]);
+  });
+
+  it("treats a new member with no cached data as having all-new games", async () => {
+    const STEAM_ID_3 = "76561198000000003";
+    // Only 2 members cached; member3 is new
+    mockGetCachedLibraries.mockResolvedValue(
+      new Map([
+        [STEAM_ID_1, [440, 730]],
+        [STEAM_ID_2, [440, 730]],
+      ]),
+    );
+    // All 3 now have game 570 — but only member3 is "new" for it
+    mockFetchGames
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_1, [440, 730, 570], ["TF2", "CS2", "Dota 2"]))
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_2, [440, 730, 570], ["TF2", "CS2", "Dota 2"]))
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_3, [440, 730, 570], ["TF2", "CS2", "Dota 2"]));
+
+    const summaries = new Map<string, SteamPlayerSummary>();
+    summaries.set(STEAM_ID_3, {
+      steamid: STEAM_ID_3,
+      personaname: "Player3",
+      profileurl: "",
+      avatar: "",
+      avatarmedium: "",
+      avatarfull: "",
+    });
+    mockFetchPlayerSummaries.mockResolvedValue(summaries);
+
+    const result = await checkForNewGames(
+      "group-1",
+      makeMembers(STEAM_ID_1, STEAM_ID_2, STEAM_ID_3),
+    );
+
+    // 570 is new overlap (member3 has all games as "new", and 570 is in all libraries)
+    expect(result.some((n) => n.appId === 570)).toBe(true);
+  });
+
+  it("updates cached libraries after computing diff", async () => {
+    mockGetCachedLibraries.mockResolvedValue(
+      new Map([
+        [STEAM_ID_1, [440, 730]],
+        [STEAM_ID_2, [440, 570]],
+      ]),
+    );
+    mockFetchGames
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_1, [440, 730]))
+      .mockResolvedValueOnce(makeLibrary(STEAM_ID_2, [440, 570]));
+
+    await checkForNewGames(
+      "group-1",
+      makeMembers(STEAM_ID_1, STEAM_ID_2),
+    );
+
+    // Cache should be updated for both members even when no new games
+    expect(mockUpdateCachedLibrary).toHaveBeenCalledTimes(2);
+  });
 });
