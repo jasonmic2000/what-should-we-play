@@ -65,6 +65,14 @@ vi.mock("@/lib/rate-limiter", () => ({
   checkRateLimit: checkRateLimitMock,
 }));
 
+vi.mock("@/lib/auth", () => ({
+  getAuthUser: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock("@/lib/db/search-history-repository", () => ({
+  recordSearch: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("POST /api/find-overlap", () => {
   beforeEach(() => {
     parseSteamProfileInputMock.mockReset();

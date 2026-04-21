@@ -4,12 +4,14 @@ import { Suspense, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import type { AppUser } from "@/lib/types";
+import type { AppUser, SearchHistoryEntry } from "@/lib/types";
 
 function ProfileContent() {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [unlinking, setUnlinking] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,6 +34,22 @@ function ProfileContent() {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+
+        // Fetch search history for paid users
+        if (data.user?.subscriptionTier === "paid") {
+          setHistoryLoading(true);
+          try {
+            const historyRes = await fetch("/api/search-history?limit=20");
+            if (historyRes.ok) {
+              const historyData = await historyRes.json();
+              setSearchHistory(historyData.data ?? []);
+            }
+          } catch {
+            // Graceful degradation — history is non-critical
+          } finally {
+            setHistoryLoading(false);
+          }
+        }
       }
       setLoading(false);
     }
@@ -138,9 +156,48 @@ function ProfileContent() {
             <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Search History
             </h2>
-            <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
-              Coming soon.
-            </p>
+            {user.subscriptionTier === "paid" ? (
+              historyLoading ? (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+                  <span className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</span>
+                </div>
+              ) : searchHistory.length === 0 ? (
+                <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+                  No searches yet. Your overlap searches will appear here.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-2">
+                  {searchHistory.map((entry) => (
+                    <li
+                      key={entry.id}
+                      className="flex items-center justify-between rounded-md border border-zinc-100 px-3 py-2 dark:border-white/5"
+                    >
+                      <div>
+                        <p className="text-sm text-zinc-900 dark:text-zinc-100">
+                          {entry.profilesSearched.length} profiles &middot;{" "}
+                          {entry.sharedGameCount} shared{" "}
+                          {entry.sharedGameCount === 1 ? "game" : "games"}
+                        </p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                          {new Date(entry.searchedAt).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : (
+              <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
+                Upgrade to view your search history.
+              </p>
+            )}
           </section>
 
           <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">

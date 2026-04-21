@@ -17,6 +17,8 @@ import {
   computeRecentlyPlayedRanking,
 } from "@/lib/steam/recently-played";
 import logger from "@/lib/logger";
+import { getAuthUser } from "@/lib/auth";
+import { recordSearch } from "@/lib/db/search-history-repository";
 import {
   FindOverlapRequest,
   FindOverlapResponse,
@@ -256,6 +258,19 @@ export async function POST(request: Request) {
       durationMs: Date.now() - startTime,
       forceRefresh: effectiveForceRefresh,
     });
+
+    // Fire-and-forget: record search history for authenticated users
+    getAuthUser()
+      .then((authUser) => {
+        if (authUser) {
+          recordSearch(authUser.id, steamIds, enrichedGames.length).catch(
+            (err) => logger.error({ msg: "search-history-record-error", error: String(err) }),
+          );
+        }
+      })
+      .catch(() => {
+        // Auth check failed — ignore silently
+      });
 
     return NextResponse.json(response);
   } catch (error) {
