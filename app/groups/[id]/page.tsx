@@ -35,6 +35,10 @@ export default function GroupDetailPage() {
   const [deleting, setDeleting] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkedGame[]>([]);
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [shareCopied, setShareCopied] = useState(false);
   const router = useRouter();
   const params = useParams();
   const groupId = params.id as string;
@@ -249,6 +253,87 @@ export default function GroupDetailPage() {
       imgIconUrl: "",
       imgLogoUrl: "",
     };
+  }
+
+  async function handleShare() {
+    setShareError(null);
+    setShareUrl(null);
+    setShareCopied(false);
+
+    // If overlap hasn't been run yet, run it first
+    if (!overlapResults) {
+      if (!group || group.members.length < 2) {
+        setShareError("Need at least 2 members to share overlap results");
+        return;
+      }
+
+      setShareLoading(true);
+      const profileUrls = group.members.map(
+        (m) => `https://steamcommunity.com/profiles/${m.steamId64}`,
+      );
+
+      try {
+        const overlapRes = await fetch("/api/find-overlap", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ profiles: profileUrls }),
+        });
+        const overlapJson = await overlapRes.json();
+        if (!overlapJson.success || !overlapJson.data) {
+          setShareError(overlapJson.error?.message ?? "Failed to find overlap");
+          setShareLoading(false);
+          return;
+        }
+        setOverlapResults(overlapJson.data);
+        await createShareLink(overlapJson.data);
+      } catch {
+        setShareError("Failed to connect to the server");
+        setShareLoading(false);
+      }
+      return;
+    }
+
+    setShareLoading(true);
+    await createShareLink(overlapResults);
+  }
+
+  async function createShareLink(results: FindOverlapData) {
+    try {
+      const snapshotData = {
+        profiles: results.profiles,
+        sharedGames: results.sharedGames,
+        generatedAt: new Date().toISOString(),
+      };
+
+      const res = await fetch(`/api/groups/${groupId}/share`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ snapshotData }),
+      });
+
+      const json = await res.json();
+      if (json.success && json.data) {
+        const fullUrl = `${window.location.origin}${json.data.url}`;
+        setShareUrl(fullUrl);
+      } else {
+        setShareError(json.error?.message ?? "Failed to create share link");
+      }
+    } catch {
+      setShareError("Failed to connect to the server");
+    } finally {
+      setShareLoading(false);
+    }
+  }
+
+  async function handleCopyShareUrl() {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    } catch {
+      // Fallback: select the input text
+    }
   }
 
   if (loading) {
@@ -502,14 +587,56 @@ export default function GroupDetailPage() {
           )}
         </section>
 
-        {/* Share section (placeholder) */}
+        {/* Share section */}
         <section className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
-          <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Share
-          </h2>
-          <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
-            Coming soon.
-          </p>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Share
+            </h2>
+            <button
+              onClick={handleShare}
+              disabled={shareLoading || (group.members.length < 2)}
+              className="cursor-pointer rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-400"
+            >
+              {shareLoading ? "Creating…" : "Create Share Link"}
+            </button>
+          </div>
+
+          {shareError && (
+            <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+              {shareError}
+            </p>
+          )}
+
+          {shareUrl && (
+            <div className="mt-3 flex items-center gap-2">
+              <input
+                type="text"
+                readOnly
+                value={shareUrl}
+                className="flex-1 rounded-lg border border-zinc-300 bg-zinc-100 px-3 py-1.5 text-sm text-zinc-700 outline-none dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-300"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+              />
+              <button
+                onClick={handleCopyShareUrl}
+                className="cursor-pointer rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              >
+                {shareCopied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          )}
+
+          {!shareUrl && !shareError && group.members.length >= 2 && (
+            <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
+              Generate a temporary link (24h) to share your overlap results.
+            </p>
+          )}
+
+          {group.members.length < 2 && (
+            <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
+              Add at least 2 members to share overlap results.
+            </p>
+          )}
         </section>
 
         {/* Admin: Delete group */}
