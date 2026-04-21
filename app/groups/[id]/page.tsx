@@ -9,9 +9,10 @@ import type {
   GroupRole,
   FindOverlapData,
   AppUser,
+  BookmarkedGame,
+  EnrichedSharedGame,
 } from "@/lib/types";
 import { MemberList } from "@/components/MemberList";
-import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { GroupMemberInput } from "@/components/GroupMemberInput";
 import { GameCard } from "@/components/GameCard";
 
@@ -32,6 +33,8 @@ export default function GroupDetailPage() {
   const [savingName, setSavingName] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [bookmarks, setBookmarks] = useState<BookmarkedGame[]>([]);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
   const router = useRouter();
   const params = useParams();
   const groupId = params.id as string;
@@ -44,6 +47,8 @@ export default function GroupDetailPage() {
     );
   })();
 
+  const isPaidUser = currentUser?.subscriptionTier === "paid";
+
   const loadGroup = useCallback(async () => {
     const res = await fetch(`/api/groups/${groupId}`);
     if (res.ok) {
@@ -51,6 +56,16 @@ export default function GroupDetailPage() {
       if (json.success && json.data) {
         setGroup(json.data);
         setNameInput(json.data.name);
+      }
+    }
+  }, [groupId]);
+
+  const loadBookmarks = useCallback(async () => {
+    const res = await fetch(`/api/groups/${groupId}/bookmarks`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data) {
+        setBookmarks(json.data);
       }
     }
   }, [groupId]);
@@ -74,10 +89,11 @@ export default function GroupDetailPage() {
       }
 
       await loadGroup();
+      await loadBookmarks();
       setLoading(false);
     }
     init();
-  }, [router, loadGroup]);
+  }, [router, loadGroup, loadBookmarks]);
 
   async function handleRunOverlap() {
     if (!group || group.members.length < 2) {
@@ -192,6 +208,47 @@ export default function GroupDetailPage() {
           }
         : prev,
     );
+  }
+
+  const bookmarkedAppIds = new Set(bookmarks.map((b) => b.appId));
+
+  async function handleAddBookmark(appId: number) {
+    setBookmarkError(null);
+    const res = await fetch(`/api/groups/${groupId}/bookmarks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appId }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      await loadBookmarks();
+    } else {
+      setBookmarkError(json.error?.message ?? "Failed to bookmark game");
+    }
+  }
+
+  async function handleRemoveBookmark(appId: number) {
+    setBookmarkError(null);
+    const res = await fetch(`/api/groups/${groupId}/bookmarks/${appId}`, {
+      method: "DELETE",
+    });
+    const json = await res.json();
+    if (json.success) {
+      setBookmarks((prev) => prev.filter((b) => b.appId !== appId));
+    } else {
+      setBookmarkError(json.error?.message ?? "Failed to remove bookmark");
+    }
+  }
+
+  function bookmarkedGameToEnriched(b: BookmarkedGame): EnrichedSharedGame {
+    return {
+      appId: b.appId,
+      name: b.name,
+      headerImageUrl: b.headerImageUrl,
+      playtimeForever: 0,
+      imgIconUrl: "",
+      imgLogoUrl: "",
+    };
   }
 
   if (loading) {
@@ -382,7 +439,19 @@ export default function GroupDetailPage() {
               {overlapResults.sharedGames.length > 0 && (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {overlapResults.sharedGames.map((game) => (
-                    <GameCard key={game.appId} game={game} />
+                    <GameCard
+                      key={game.appId}
+                      game={game}
+                      isBookmarked={bookmarkedAppIds.has(game.appId)}
+                      onBookmark={
+                        isAdmin && isPaidUser
+                          ? () =>
+                              bookmarkedAppIds.has(game.appId)
+                                ? handleRemoveBookmark(game.appId)
+                                : handleAddBookmark(game.appId)
+                          : undefined
+                      }
+                    />
                   ))}
                 </div>
               )}
@@ -390,14 +459,47 @@ export default function GroupDetailPage() {
           )}
         </section>
 
-        {/* Bookmarks section (placeholder) */}
+        {/* Bookmarks section */}
         <section className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
           <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Bookmarks
+            Bookmarks{bookmarks.length > 0 ? ` (${bookmarks.length})` : ""}
           </h2>
-          <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
-            Coming soon.
-          </p>
+
+          {bookmarkError && (
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+              {bookmarkError}
+            </p>
+          )}
+
+          {isAdmin && !isPaidUser && (
+            <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
+              Bookmarks are a paid feature.{" "}
+              <span className="text-teal-600 dark:text-teal-400">
+                Upgrade to access.
+              </span>
+            </p>
+          )}
+
+          {bookmarks.length === 0 && (isPaidUser || !isAdmin) && (
+            <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
+              No bookmarked games yet.
+            </p>
+          )}
+
+          {bookmarks.length > 0 && (
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {bookmarks.map((b) => (
+                <GameCard
+                  key={b.appId}
+                  game={bookmarkedGameToEnriched(b)}
+                  isBookmarked
+                  onBookmark={
+                    isAdmin ? () => handleRemoveBookmark(b.appId) : undefined
+                  }
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Share section (placeholder) */}

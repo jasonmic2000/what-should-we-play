@@ -240,6 +240,11 @@ export interface GroupBookmark {
   addedAt: string;
 }
 
+export interface BookmarkedGame extends GroupBookmark {
+  name: string;
+  headerImageUrl: string;
+}
+
 export interface SharedLink {
   id: string;
   groupId: string;
