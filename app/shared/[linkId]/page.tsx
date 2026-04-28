@@ -56,7 +56,7 @@ export default function SharedLinkPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-stone-50 px-4 dark:bg-zinc-950">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Link Not Found
           </h1>
           <p className="mt-2 text-zinc-500 dark:text-zinc-400">
@@ -144,7 +144,7 @@ export default function SharedLinkPage() {
             ))}
           </div>
         ) : (
-          <div className="mt-6 rounded-lg border border-zinc-200 bg-white py-12 text-center dark:border-white/5 dark:bg-zinc-900">
+          <div className="mt-6 rounded-xl border border-amber-200 bg-white py-12 text-center dark:border-amber-500/10 dark:bg-zinc-900">
             <p className="text-zinc-500 dark:text-zinc-400">
               No shared games found.
             </p>
