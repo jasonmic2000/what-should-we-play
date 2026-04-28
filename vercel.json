@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/sync-catalog?job=enrich",
-      "schedule": "*/20 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
