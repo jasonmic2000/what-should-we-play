@@ -11,14 +11,14 @@ export function ProfileChip({ url, onRemove }: ProfileChipProps) {
   const displayName = extractDisplayName(url);
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm border bg-zinc-200 text-zinc-800 border-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:border-white/10">
+    <span className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm border bg-zinc-200 text-zinc-800 border-amber-200 dark:bg-amber-500/5 dark:text-zinc-200 dark:border-amber-500/20">
       <span className="max-w-[180px] truncate" title={url}>
         {displayName}
       </span>
       <button
         type="button"
         onClick={onRemove}
-        className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-white/10 dark:hover:bg-white/10 hover:bg-zinc-300"
+        className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-amber-500/10 dark:hover:bg-amber-500/10"
         aria-label={`Remove ${displayName}`}
       >
         <svg

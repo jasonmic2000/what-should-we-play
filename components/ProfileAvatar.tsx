@@ -16,7 +16,7 @@ export function ProfileAvatar({ avatarUrl, personaName, size = 40 }: ProfileAvat
   if (!avatarUrl || failed) {
     return (
       <div
-        className="flex items-center justify-center rounded-full bg-zinc-700 text-sm font-medium text-zinc-300"
+        className="flex items-center justify-center rounded-full bg-amber-500/10 text-sm font-medium text-amber-600 dark:text-amber-400"
         style={{ width: size, height: size }}
         aria-label={personaName ?? "Unknown player"}
       >

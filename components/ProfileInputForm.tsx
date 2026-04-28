@@ -91,7 +91,7 @@ export function ProfileInputForm() {
             type="button"
             onClick={handleAdd}
             disabled={isAtCap || !inputValue.trim()}
-            className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-zinc-200 text-zinc-700 hover:bg-zinc-300 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            className="rounded-lg px-4 py-2.5 text-sm font-medium transition-colors bg-zinc-200 text-zinc-700 hover:bg-amber-500/10 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-amber-500/10"
           >
             Add
           </button>

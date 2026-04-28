@@ -14,7 +14,7 @@ export function GameCard({ game, onBookmark, isBookmarked }: GameCardProps) {
   const [imgFailed, setImgFailed] = useState(false);
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-white/5 dark:bg-zinc-900">
+    <div className="relative cursor-pointer overflow-hidden rounded-xl border border-amber-200 bg-white transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-amber-500/5 dark:border-amber-500/10 dark:bg-zinc-900">
       {onBookmark && (
         <button
           onClick={onBookmark}
@@ -55,7 +55,7 @@ export function GameCard({ game, onBookmark, isBookmarked }: GameCardProps) {
       </div>
       <div className="px-3 py-2">
         <div className="flex items-center gap-1.5">
-          <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+          <p className="truncate text-sm font-medium font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-100">
             {game.name}
           </p>
           {game.isFree === true && (

@@ -37,7 +37,7 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
 
       {/* Summary + actions */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-lg font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-100">
           {sharedGames.length === 0
             ? "No games in common"
             : `${sharedGames.length} game${sharedGames.length === 1 ? "" : "s"} in common`}
@@ -74,7 +74,7 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
 
       {/* Game grid or empty state */}
       {sharedGames.length === 0 ? (
-        <div className="rounded-lg border border-zinc-200 bg-white py-12 text-center dark:border-white/5 dark:bg-zinc-900">
+        <div className="rounded-xl border border-amber-200 bg-white py-12 text-center dark:border-amber-500/10 dark:bg-zinc-900">
           <p className="text-zinc-500 dark:text-zinc-400">
             No shared games found. Try adding different profiles.
           </p>

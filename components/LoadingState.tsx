@@ -31,9 +31,9 @@ export function LoadingState({ profileUrls }: LoadingStateProps) {
             key={step}
             className={`text-sm transition-colors ${
               i < stepIndex
-                ? "text-zinc-500 dark:text-zinc-500"
+                ? "text-amber-500 dark:text-amber-400"
                 : i === stepIndex
-                  ? "text-zinc-900 dark:text-zinc-100 font-medium"
+                  ? "text-amber-500 dark:text-amber-400 font-medium"
                   : "text-zinc-300 dark:text-zinc-700"
             }`}
           >
