@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { FindOverlapData } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
@@ -15,6 +16,7 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
   const reset = useAppStore((s) => s.reset);
   const multiplayerOnly = useAppStore((s) => s.multiplayerOnly);
   const setMultiplayerOnly = useAppStore((s) => s.setMultiplayerOnly);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   const { profiles, sharedGames } = data;
 
@@ -97,12 +99,52 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Create an account to save groups, bookmark games, and share with friends.
           </p>
-          <Link
-            href="/auth/signup"
-            className="mt-4 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
+          <button
+            onClick={() => setShowSaveModal(true)}
+            className="mt-4 inline-block cursor-pointer rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
           >
             Sign up to save &amp; share
-          </Link>
+          </button>
+        </div>
+      )}
+
+      {/* Save modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="relative mx-4 w-full max-w-md rounded-xl border border-amber-200 bg-white p-6 shadow-xl dark:border-amber-500/10 dark:bg-zinc-900">
+            <button
+              type="button"
+              onClick={() => setShowSaveModal(false)}
+              className="absolute top-3 right-3 cursor-pointer text-zinc-400 transition-colors hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+              aria-label="Close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+            <div className="space-y-4 text-center">
+              <h2 className="font-[family-name:var(--font-display)] text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                Save &amp; share your results
+              </h2>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                Create a free account to save groups, bookmark games, and share results with friends.
+              </p>
+              <div className="flex flex-col gap-2 pt-2">
+                <Link
+                  href="/auth/signup"
+                  className="cursor-pointer rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
+                >
+                  Sign up free
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="cursor-pointer rounded-lg border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  Already have an account? Log in
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

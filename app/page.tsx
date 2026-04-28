@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import { ProfileInputForm } from "@/components/ProfileInputForm";
 import { LoadingState } from "@/components/LoadingState";
@@ -451,6 +452,13 @@ export default function Home() {
   const profiles = useAppStore((s) => s.profiles);
 
   const isIdle = status === "idle";
+
+  // Scroll to top when entering loading or results state
+  useEffect(() => {
+    if (status === "loading" || status === "success") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [status]);
 
   return (
     <div className="min-h-screen bg-stone-50 font-sans dark:bg-zinc-950">

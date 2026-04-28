@@ -46,7 +46,12 @@ export function Navbar() {
           <button
             onClick={() => {
               reset();
-              if (pathname !== "/") window.location.href = "/";
+              if (pathname === "/") {
+                window.history.replaceState(null, "", "/");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                window.location.href = "/";
+              }
             }}
             className="cursor-pointer font-[family-name:var(--font-display)] text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50"
           >
@@ -56,7 +61,12 @@ export function Navbar() {
             <button
               onClick={() => {
                 reset();
-                if (pathname !== "/") window.location.href = "/";
+                if (pathname === "/") {
+                  window.history.replaceState(null, "", "/");
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
+                  window.location.href = "/";
+                }
               }}
               className="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             >
