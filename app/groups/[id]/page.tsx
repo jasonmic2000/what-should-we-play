@@ -433,7 +433,7 @@ export default function GroupDetailPage() {
             </div>
           ) : (
             <>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              <h1 className="text-2xl font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-50">
                 {group.name}
               </h1>
               {isAdmin && (
@@ -458,9 +458,9 @@ export default function GroupDetailPage() {
         </div>
 
         {/* Members section */}
-        <section className="mt-8 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
+        <section className="mt-8 rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Members ({group.members.length})
             </h2>
             {isAdmin && (
@@ -506,7 +506,7 @@ export default function GroupDetailPage() {
         {/* Notifications section */}
         {isPaidUser && notifications.length > 0 && (
           <section className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
-            <h2 className="text-sm font-medium text-amber-600 dark:text-amber-300">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-amber-600 dark:text-amber-300">
               New since last visit
             </h2>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -554,9 +554,9 @@ export default function GroupDetailPage() {
         )}
 
         {/* Overlap section */}
-        <section className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
+        <section className="mt-6 rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Game Overlap
             </h2>
             <button
@@ -617,8 +617,8 @@ export default function GroupDetailPage() {
         </section>
 
         {/* Bookmarks section */}
-        <section className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
-          <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+        <section className="mt-6 rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
+          <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
             Bookmarks{bookmarks.length > 0 ? ` (${bookmarks.length})` : ""}
           </h2>
 
@@ -660,9 +660,9 @@ export default function GroupDetailPage() {
         </section>
 
         {/* Share section */}
-        <section className="mt-6 rounded-lg border border-zinc-200 p-4 dark:border-white/10">
+        <section className="mt-6 rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Share
             </h2>
             <button

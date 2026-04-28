@@ -107,7 +107,7 @@ export default function CreateGroupPage() {
       </div>
 
       <main className="mx-auto max-w-lg px-6 pt-8 pb-16">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-50">
           Create Group
         </h1>
 

@@ -57,7 +57,7 @@ export function MemberList({
   }
 
   return (
-    <ul className="divide-y divide-zinc-200 dark:divide-white/10">
+    <ul className="divide-y divide-amber-200/50 dark:divide-amber-500/5">
       {members.map((member) => (
         <li
           key={member.steamId64}
@@ -88,7 +88,7 @@ export function MemberList({
               <button
                 onClick={() => handleToggleRole(member.steamId64, member.role)}
                 disabled={loadingAction === `role-${member.steamId64}`}
-                className="cursor-pointer rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-600 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:border-white/10 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                className="cursor-pointer rounded border border-zinc-300 px-2 py-1 text-xs text-zinc-600 transition-colors hover:bg-amber-500/10 disabled:opacity-50 dark:border-white/10 dark:text-zinc-400 dark:hover:bg-amber-500/10"
               >
                 {member.role === "admin" ? "Demote" : "Promote"}
               </button>

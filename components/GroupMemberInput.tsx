@@ -88,7 +88,7 @@ export function GroupMemberInput({
           {members.map((url) => (
             <span
               key={url}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-300 bg-zinc-200 px-3 py-1.5 text-sm text-zinc-800 dark:border-white/10 dark:bg-zinc-800 dark:text-zinc-200"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-zinc-200 px-3 py-1.5 text-sm text-zinc-800 dark:border-amber-500/20 dark:bg-amber-500/5 dark:text-zinc-200"
             >
               <span className="max-w-[180px] truncate" title={url}>
                 {extractDisplayName(url)}
@@ -96,7 +96,7 @@ export function GroupMemberInput({
               <button
                 type="button"
                 onClick={() => onRemove(url)}
-                className="ml-0.5 cursor-pointer rounded-full p-0.5 transition-colors hover:bg-zinc-300 dark:hover:bg-white/10"
+                className="ml-0.5 cursor-pointer rounded-full p-0.5 transition-colors hover:bg-amber-500/10 dark:hover:bg-amber-500/10"
                 aria-label={`Remove ${extractDisplayName(url)}`}
               >
                 <svg

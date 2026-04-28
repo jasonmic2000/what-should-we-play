@@ -54,7 +54,7 @@ export default function GroupsPage() {
 
       <main className="mx-auto max-w-lg px-6 pt-8 pb-16">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-50">
             Groups
           </h1>
           <Link
@@ -67,7 +67,7 @@ export default function GroupsPage() {
 
         <div className="mt-6 space-y-3">
           {groups.length === 0 ? (
-            <div className="rounded-lg border border-zinc-200 bg-white py-12 text-center dark:border-white/5 dark:bg-zinc-900">
+            <div className="rounded-xl border border-amber-200 bg-white py-12 text-center dark:border-amber-500/10 dark:bg-zinc-900">
               <p className="text-zinc-500 dark:text-zinc-400">
                 No groups yet. Create one to get started.
               </p>

@@ -17,9 +17,9 @@ export function GroupCard({ group }: GroupCardProps) {
   return (
     <Link
       href={`/groups/${group.id}`}
-      className="block cursor-pointer rounded-lg border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-900 dark:hover:bg-zinc-800/70"
+      className="block cursor-pointer rounded-xl border border-amber-200 bg-white p-4 transition-all hover:shadow-md hover:scale-[1.01] dark:border-amber-500/10 dark:bg-zinc-900"
     >
-      <h3 className="truncate text-base font-medium text-zinc-900 dark:text-zinc-100">
+      <h3 className="truncate text-base font-medium font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-100">
         {group.name}
       </h3>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
