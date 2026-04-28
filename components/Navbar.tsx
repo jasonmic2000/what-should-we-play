@@ -11,6 +11,7 @@ import { ThemeToggle } from "./ThemeToggle";
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdminUser, setIsAdminUser] = useState(false);
   const reset = useAppStore((s) => s.reset);
   const pathname = usePathname();
 
@@ -30,6 +31,17 @@ export function Navbar() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdminUser(false);
+      return;
+    }
+    fetch("/api/admin/check")
+      .then((res) => res.json())
+      .then((data) => setIsAdminUser(data.isAdmin === true))
+      .catch(() => setIsAdminUser(false));
+  }, [user]);
 
   async function handleSignOut() {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -78,6 +90,14 @@ export function Navbar() {
                 className="text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
               >
                 Groups
+              </Link>
+            )}
+            {isAdminUser && (
+              <Link
+                href="/admin"
+                className="text-sm text-amber-600 transition-colors hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
+              >
+                Admin
               </Link>
             )}
           </div>
