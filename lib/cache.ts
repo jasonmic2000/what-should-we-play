@@ -46,6 +46,10 @@ export class TtlCache<V extends {}> {
   clear(): void {
     this.cache.clear();
   }
+
+  size(): number {
+    return this.cache.size;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -105,4 +109,16 @@ export function invalidateProfile(profileKey: string): void {
 // Exported for testing only
 export function _resetRefreshTimestamps(): void {
   refreshTimestamps.clear();
+}
+
+// ---------------------------------------------------------------------------
+// Cache size getters (used by admin health dashboard)
+// ---------------------------------------------------------------------------
+
+export function getVanityCacheSize(): number {
+  return vanityCache.size();
+}
+
+export function getLibraryCacheSize(): number {
+  return gameLibraryCache.size();
 }
