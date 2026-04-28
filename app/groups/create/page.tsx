@@ -89,14 +89,14 @@ export default function CreateGroupPage() {
 
   if (!authChecked) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">
       <div className="flex items-center justify-between px-4 py-3">
         <Link
           href="/groups"
@@ -125,7 +125,7 @@ export default function CreateGroupPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Friday Night Crew"
-              className="mt-1 w-full rounded-lg border bg-zinc-100 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-colors border-zinc-300 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 dark:bg-zinc-900 dark:text-zinc-100 dark:border-white/10 dark:placeholder-zinc-500 dark:focus:ring-teal-400/50 dark:focus:border-teal-400"
+              className="mt-1 w-full rounded-lg border bg-zinc-100 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-colors border-zinc-300 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 dark:bg-zinc-900 dark:text-zinc-100 dark:border-white/10 dark:placeholder-zinc-500 dark:focus:ring-amber-500/50 dark:focus:border-amber-400"
             />
           </div>
 
@@ -154,7 +154,7 @@ export default function CreateGroupPage() {
           <button
             type="submit"
             disabled={submitting || !name.trim()}
-            className="w-full cursor-pointer rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-400"
+            className="w-full cursor-pointer rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? "Creating…" : "Create Group"}
           </button>

@@ -360,15 +360,15 @@ export default function GroupDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
       </div>
     );
   }
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">
         <div className="px-4 py-3">
           <Link
             href="/groups"
@@ -385,7 +385,7 @@ export default function GroupDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">
       <div className="px-4 py-3">
         <Link
           href="/groups"
@@ -412,12 +412,12 @@ export default function GroupDetailPage() {
                   }
                 }}
                 autoFocus
-                className="flex-1 rounded-lg border bg-zinc-100 px-3 py-1.5 text-xl font-bold text-zinc-900 outline-none border-zinc-300 focus:ring-2 focus:ring-teal-500/50 dark:bg-zinc-900 dark:text-zinc-100 dark:border-white/10"
+                className="flex-1 rounded-lg border bg-zinc-100 px-3 py-1.5 text-xl font-bold text-zinc-900 outline-none border-zinc-300 focus:ring-2 focus:ring-amber-500/50 dark:bg-zinc-900 dark:text-zinc-100 dark:border-white/10"
               />
               <button
                 onClick={handleSaveName}
                 disabled={savingName}
-                className="cursor-pointer rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-400"
+                className="cursor-pointer rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-500 disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
               >
                 Save
               </button>
@@ -466,7 +466,7 @@ export default function GroupDetailPage() {
             {isAdmin && (
               <button
                 onClick={() => setShowAddMember(!showAddMember)}
-                className="cursor-pointer text-sm text-teal-600 transition-colors hover:text-teal-500 dark:text-teal-400 dark:hover:text-teal-300"
+                className="cursor-pointer text-sm text-amber-500 transition-colors hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300"
               >
                 {showAddMember ? "Cancel" : "+ Add Member"}
               </button>
@@ -474,7 +474,7 @@ export default function GroupDetailPage() {
           </div>
 
           {showAddMember && (
-            <div className="mt-3 space-y-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-white/5 dark:bg-zinc-800/50">
+            <div className="mt-3 space-y-3 rounded-lg border border-zinc-200 bg-stone-50 p-3 dark:border-white/5 dark:bg-zinc-800/50">
               <GroupMemberInput
                 members={newMemberUrls}
                 onAdd={(url) => setNewMemberUrls((prev) => [...prev, url])}
@@ -485,7 +485,7 @@ export default function GroupDetailPage() {
               <button
                 onClick={handleAddMember}
                 disabled={addingMember || newMemberUrls.length === 0}
-                className="cursor-pointer rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-400"
+                className="cursor-pointer rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
               >
                 {addingMember ? "Adding…" : "Add Members"}
               </button>
@@ -505,17 +505,17 @@ export default function GroupDetailPage() {
 
         {/* Notifications section */}
         {isPaidUser && notifications.length > 0 && (
-          <section className="mt-6 rounded-lg border border-teal-300 bg-teal-50 p-4 dark:border-teal-500/30 dark:bg-teal-500/10">
-            <h2 className="text-sm font-medium text-teal-700 dark:text-teal-300">
+          <section className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+            <h2 className="text-sm font-medium text-amber-600 dark:text-amber-300">
               New since last visit
             </h2>
             <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {notifications.map((notif) => (
                 <div
                   key={notif.appId}
-                  className="relative overflow-hidden rounded-lg border border-teal-200 bg-white dark:border-teal-500/20 dark:bg-zinc-900"
+                  className="relative overflow-hidden rounded-lg border border-amber-200 bg-white dark:border-amber-500/20 dark:bg-zinc-900"
                 >
-                  <span className="absolute top-2 right-2 z-10 rounded-full bg-teal-500 px-2 py-0.5 text-[10px] font-semibold uppercase leading-none text-white">
+                  <span className="absolute top-2 right-2 z-10 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold uppercase leading-none text-zinc-900">
                     New!
                   </span>
                   <div className="relative aspect-[460/215] w-full bg-zinc-200 dark:bg-zinc-800">
@@ -544,7 +544,7 @@ export default function GroupDetailPage() {
         {!isPaidUser && (
           <section className="mt-6">
             <p className="text-sm text-zinc-400 dark:text-zinc-500">
-              <span className="text-teal-600 dark:text-teal-400">
+              <span className="text-amber-500 dark:text-amber-400">
                 Upgrade to see what&apos;s new
               </span>{" "}
               — get notified when group members add games that match your
@@ -562,7 +562,7 @@ export default function GroupDetailPage() {
             <button
               onClick={handleRunOverlap}
               disabled={overlapLoading || group.members.length < 2}
-              className="cursor-pointer rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-400"
+              className="cursor-pointer rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
             >
               {overlapLoading ? "Finding…" : "Run Overlap"}
             </button>
@@ -576,7 +576,7 @@ export default function GroupDetailPage() {
 
           {overlapLoading && (
             <div className="mt-4 flex items-center justify-center py-8">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
             </div>
           )}
 
@@ -631,7 +631,7 @@ export default function GroupDetailPage() {
           {isAdmin && !isPaidUser && (
             <p className="mt-2 text-sm text-zinc-400 dark:text-zinc-500">
               Bookmarks are a paid feature.{" "}
-              <span className="text-teal-600 dark:text-teal-400">
+              <span className="text-amber-500 dark:text-amber-400">
                 Upgrade to access.
               </span>
             </p>
@@ -668,7 +668,7 @@ export default function GroupDetailPage() {
             <button
               onClick={handleShare}
               disabled={shareLoading || (group.members.length < 2)}
-              className="cursor-pointer rounded-lg bg-teal-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-500 dark:hover:bg-teal-400"
+              className="cursor-pointer rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-500 dark:hover:bg-amber-400"
             >
               {shareLoading ? "Creating…" : "Create Share Link"}
             </button>

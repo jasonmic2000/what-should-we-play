@@ -1,8 +1,6 @@
 "use client";
 
 import { useAppStore } from "@/lib/store";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { AuthButton } from "@/components/AuthButton";
 import { ProfileInputForm } from "@/components/ProfileInputForm";
 import { LoadingState } from "@/components/LoadingState";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
@@ -15,18 +13,12 @@ export default function Home() {
   const profiles = useAppStore((s) => s.profiles);
 
   return (
-    <div className="min-h-screen bg-zinc-50 font-sans dark:bg-zinc-950">
-      {/* Top bar */}
-      <div className="flex items-center justify-end gap-2 px-4 py-3">
-        <AuthButton />
-        <ThemeToggle />
-      </div>
-
+    <div className="min-h-screen bg-stone-50 font-sans dark:bg-zinc-950">
       <main className="flex flex-col items-center px-6 pb-16">
         {/* Landing hero — always visible in idle/error */}
         {(status === "idle" || status === "error") && (
           <section className="flex flex-col items-center gap-3 pt-12 pb-8 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
               What Should We Play?
             </h1>
             <p className="max-w-md text-sm text-zinc-500 dark:text-zinc-400">

@@ -51,7 +51,7 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
             }}
             className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
               multiplayerOnly
-                ? "border-teal-500 bg-teal-600 text-white dark:border-teal-400 dark:bg-teal-500"
+                ? "border-amber-500 bg-amber-500 text-zinc-900 dark:border-amber-400 dark:bg-amber-500"
                 : "border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-zinc-800"
             }`}
           >

@@ -35,14 +35,14 @@ export default function GroupsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">
       <div className="flex items-center justify-between px-4 py-3">
         <Link
           href="/"
@@ -59,7 +59,7 @@ export default function GroupsPage() {
           </h1>
           <Link
             href="/groups/create"
-            className="cursor-pointer rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-500 dark:bg-teal-500 dark:hover:bg-teal-400"
+            className="cursor-pointer rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
           >
             Create Group
           </Link>

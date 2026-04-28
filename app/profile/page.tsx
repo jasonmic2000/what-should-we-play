@@ -72,8 +72,8 @@ function ProfileContent() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ function ProfileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">
       <div className="flex items-center justify-between px-4 py-3">
         <Link
           href="/"
@@ -99,7 +99,7 @@ function ProfileContent() {
         </h1>
 
         {steamLinked === "true" && (
-          <div className="mt-4 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-sm text-teal-700 dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-400">
+          <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400">
             Steam account linked successfully.
           </div>
         )}
@@ -144,7 +144,7 @@ function ProfileContent() {
                 </p>
                 <a
                   href="/api/auth/steam/link"
-                  className="mt-3 inline-block cursor-pointer rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-500 dark:bg-teal-500 dark:hover:bg-teal-400"
+                  className="mt-3 inline-block cursor-pointer rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
                 >
                   Link Steam Account
                 </a>
@@ -159,7 +159,7 @@ function ProfileContent() {
             {user.subscriptionTier === "paid" ? (
               historyLoading ? (
                 <div className="mt-2 flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
                   <span className="text-sm text-zinc-400 dark:text-zinc-500">Loading…</span>
                 </div>
               ) : searchHistory.length === 0 ? (
@@ -218,8 +218,8 @@ export default function ProfilePage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+        <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-zinc-950">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
         </div>
       }
     >

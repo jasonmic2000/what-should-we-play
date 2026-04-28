@@ -53,7 +53,7 @@ export function SearchGateModal({ onClose }: SearchGateModalProps) {
               onClick={() =>
                 posthog.capture("search_gate_signup_clicked")
               }
-              className="cursor-pointer rounded-lg bg-teal-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 dark:bg-teal-500 dark:hover:bg-teal-400"
+              className="cursor-pointer rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
             >
               Sign up
             </Link>

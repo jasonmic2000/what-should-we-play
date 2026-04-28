@@ -46,15 +46,15 @@ export default function SharedLinkPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-zinc-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
       </div>
     );
   }
 
   if (notFound || !data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-stone-50 px-4 dark:bg-zinc-950">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
             Link Not Found
@@ -64,7 +64,7 @@ export default function SharedLinkPage() {
           </p>
           <Link
             href="/auth/signup"
-            className="mt-6 inline-block rounded-lg bg-teal-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal-500 dark:bg-teal-500 dark:hover:bg-teal-400"
+            className="mt-6 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400"
           >
             Sign up to create your own groups
           </Link>
@@ -84,16 +84,16 @@ export default function SharedLinkPage() {
   });
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">
       {/* Sign-up CTA banner */}
-      <div className="border-b border-zinc-200 bg-teal-600 dark:border-white/10 dark:bg-teal-700">
+      <div className="border-b border-zinc-200 bg-amber-500 dark:border-white/10 dark:bg-amber-600">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-3">
-          <p className="text-sm font-medium text-white">
+          <p className="text-sm font-medium text-zinc-900">
             Want to save this group and find overlap anytime?
           </p>
           <Link
             href="/auth/signup"
-            className="cursor-pointer rounded-lg bg-white px-4 py-1.5 text-sm font-medium text-teal-700 transition-colors hover:bg-zinc-100"
+            className="cursor-pointer rounded-lg bg-white px-4 py-1.5 text-sm font-medium text-amber-600 transition-colors hover:bg-zinc-100"
           >
             Sign up free
           </Link>

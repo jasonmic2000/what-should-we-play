@@ -65,7 +65,7 @@ export function GroupMemberInput({
           onKeyDown={handleKeyDown}
           placeholder="Paste a Steam profile URL..."
           disabled={isAtCap}
-          className="flex-1 rounded-lg border bg-zinc-100 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-colors border-zinc-300 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-900 dark:text-zinc-100 dark:border-white/10 dark:placeholder-zinc-500 dark:focus:ring-teal-400/50 dark:focus:border-teal-400"
+          className="flex-1 rounded-lg border bg-zinc-100 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition-colors border-zinc-300 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-zinc-900 dark:text-zinc-100 dark:border-white/10 dark:placeholder-zinc-500 dark:focus:ring-amber-500/50 dark:focus:border-amber-400"
         />
         <button
           type="button"

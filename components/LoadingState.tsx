@@ -23,7 +23,7 @@ export function LoadingState({ profileUrls }: LoadingStateProps) {
 
   return (
     <div className="flex w-full max-w-xl flex-col items-center gap-6 py-12">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-teal-500" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-600 border-t-amber-500" />
 
       <div className="space-y-2 text-center">
         {STEPS.map((step, i) => (

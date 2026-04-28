@@ -75,7 +75,7 @@ export function MemberList({
             <span
               className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none ${
                 member.role === "admin"
-                  ? "bg-teal-500/10 text-teal-600 dark:text-teal-400"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                   : "bg-zinc-200 text-zinc-500 dark:bg-zinc-700 dark:text-zinc-400"
               }`}
             >
