@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useAppStore } from "@/lib/store";
 import type { User } from "@supabase/supabase-js";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const reset = useAppStore((s) => s.reset);
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = createClient();
@@ -39,19 +43,25 @@ export function Navbar() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         {/* Left: Logo + nav links */}
         <div className="flex items-center gap-6">
-          <Link
-            href="/"
-            className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50"
+          <button
+            onClick={() => {
+              reset();
+              if (pathname !== "/") window.location.href = "/";
+            }}
+            className="cursor-pointer font-[family-name:var(--font-display)] text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-50"
           >
             WSWP
-          </Link>
+          </button>
           <div className="hidden items-center gap-4 sm:flex">
-            <Link
-              href="/"
-              className="text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            <button
+              onClick={() => {
+                reset();
+                if (pathname !== "/") window.location.href = "/";
+              }}
+              className="cursor-pointer text-sm text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             >
               Home
-            </Link>
+            </button>
             {user && (
               <Link
                 href="/groups"
