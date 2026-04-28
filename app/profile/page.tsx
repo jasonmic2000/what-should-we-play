@@ -94,7 +94,7 @@ function ProfileContent() {
       </div>
 
       <main className="mx-auto max-w-lg px-6 pt-8 pb-16">
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-50">
           Profile
         </h1>
 
@@ -111,8 +111,8 @@ function ProfileContent() {
         )}
 
         <div className="mt-6 space-y-6">
-          <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <section className="rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Email
             </h2>
             <p className="mt-1 text-zinc-900 dark:text-zinc-100">
@@ -120,8 +120,8 @@ function ProfileContent() {
             </p>
           </section>
 
-          <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <section className="rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Steam Account
             </h2>
             {user.steamId64 ? (
@@ -152,8 +152,8 @@ function ProfileContent() {
             )}
           </section>
 
-          <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <section className="rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Search History
             </h2>
             {user.subscriptionTier === "paid" ? (
@@ -200,8 +200,8 @@ function ProfileContent() {
             )}
           </section>
 
-          <section className="rounded-lg border border-zinc-200 p-4 dark:border-white/10">
-            <h2 className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <section className="rounded-xl border border-amber-200 p-4 dark:border-amber-500/10">
+            <h2 className="text-sm font-medium font-[family-name:var(--font-display)] text-zinc-500 dark:text-zinc-400">
               Subscription
             </h2>
             <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">

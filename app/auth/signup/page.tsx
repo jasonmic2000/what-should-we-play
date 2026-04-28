@@ -39,7 +39,7 @@ export default function SignUpPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4 dark:bg-zinc-950">
         <div className="w-full max-w-sm space-y-4 text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-50">
             Check your email
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -62,9 +62,9 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 px-4 dark:bg-zinc-950">
-      <div className="w-full max-w-sm space-y-6">
+      <div className="w-full max-w-sm">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-bold font-[family-name:var(--font-display)] text-zinc-900 dark:text-zinc-50">
             Create an account
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
@@ -72,6 +72,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
+        <div className="mt-6 rounded-xl border border-amber-200 bg-white p-6 dark:border-amber-500/10 dark:bg-zinc-900">
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
@@ -124,8 +125,9 @@ export default function SignUpPage() {
             {loading ? "Creating account…" : "Sign up"}
           </button>
         </form>
+        </div>
 
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-6 text-center text-sm text-zinc-500 dark:text-zinc-400">
           Already have an account?{" "}
           <Link
             href="/auth/login"
