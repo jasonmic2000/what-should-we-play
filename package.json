@@ -26,6 +26,7 @@
     "posthog-js": "^1.364.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "swagger-ui-react": "^5.32.5",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swagger-ui-react": "^5.18.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
