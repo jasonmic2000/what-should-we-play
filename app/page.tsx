@@ -228,8 +228,10 @@ function HeroSection() {
         about what to play.
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-        <a
-          href="#search"
+        <button
+          onClick={() => {
+            document.getElementById("search")?.scrollIntoView({ behavior: "smooth" });
+          }}
           className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-amber-500 px-6 py-3 text-sm font-semibold text-zinc-900 transition-colors hover:bg-amber-400"
         >
           Find Your Games
@@ -248,7 +250,7 @@ function HeroSection() {
               d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
             />
           </svg>
-        </a>
+        </button>
         <Link
           href="/auth/signup"
           className="inline-flex cursor-pointer items-center rounded-lg border border-zinc-300 px-6 py-3 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
@@ -412,12 +414,14 @@ function FinalCtaSection() {
           >
             Sign up free
           </Link>
-          <a
-            href="#search"
+          <button
+            onClick={() => {
+              document.getElementById("search")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="cursor-pointer text-sm font-medium text-zinc-500 underline underline-offset-4 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
           >
             Or just paste some profiles above
-          </a>
+          </button>
         </div>
       </div>
     </section>
