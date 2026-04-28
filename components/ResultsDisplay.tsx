@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { FindOverlapData } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
 import { ProfileAvatar } from "./ProfileAvatar";
@@ -84,6 +85,24 @@ export function ResultsDisplay({ data }: ResultsDisplayProps) {
           {sharedGames.map((game) => (
             <GameCard key={game.appId} game={game} />
           ))}
+        </div>
+      )}
+
+      {/* Save as group CTA */}
+      {sharedGames.length > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-white p-6 text-center dark:border-amber-500/10 dark:bg-zinc-900">
+          <p className="font-[family-name:var(--font-display)] text-base font-bold text-zinc-900 dark:text-zinc-100">
+            Want to save this group and share results?
+          </p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Create an account to save groups, bookmark games, and share with friends.
+          </p>
+          <Link
+            href="/auth/signup"
+            className="mt-4 inline-block rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-amber-400"
+          >
+            Sign up to save &amp; share
+          </Link>
         </div>
       )}
     </div>
