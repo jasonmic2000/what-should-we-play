@@ -35,7 +35,7 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-stone-50/80 backdrop-blur-md dark:border-white/5 dark:bg-zinc-950/80">
+    <nav className="sticky top-0 z-50 border-b border-zinc-200/80 bg-stone-50/80 backdrop-blur-md dark:border-white/[0.03] dark:bg-zinc-950/90">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         {/* Left: Logo + nav links */}
         <div className="flex items-center gap-6">
